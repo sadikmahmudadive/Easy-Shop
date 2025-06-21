@@ -29,6 +29,7 @@ import android.widget.TextView;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 public class ProductDetailsActivity extends AppCompatActivity implements WriteReviewDialog.OnReviewSubmitListener {
 
@@ -123,7 +124,7 @@ public class ProductDetailsActivity extends AppCompatActivity implements WriteRe
     }
 
     private void fetchProduct(String productId) {
-        productsRef.child(productId).addListenerForSingleValueEvent(new ValueEventListener() {
+        productsRef.child(productId).addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 currentProduct = snapshot.getValue(Product.class);
@@ -148,8 +149,13 @@ public class ProductDetailsActivity extends AppCompatActivity implements WriteRe
         productCategory.setText(nonNull(product.getCategory()));
         productPrice.setText("$" + nonNull(product.getPrice()));
         productOldPrice.setText(product.getOldPrice() != null ? "$" + product.getOldPrice() : "");
-        productRating.setText(String.valueOf(product.getRating()));
-        productReviewCount.setText("(" + product.getReviewCount() + ")");
+        // show avgRating as main rating
+        productRating.setText(
+                product.getAvgRating() != null
+                        ? String.format(Locale.US, "%.1f", product.getAvgRating())
+                        : "0.0"
+        );
+        productReviewCount.setText("(" + (product.getReviewCount() != null ? product.getReviewCount() : 0) + ")");
         productDescription.setText(nonNull(product.getDescription()));
 
         List<String> imagesList = product.getImageUrls();
@@ -268,8 +274,39 @@ public class ProductDetailsActivity extends AppCompatActivity implements WriteRe
         String reviewId = reviewsRef.child(productId).push().getKey();
         if (reviewId != null) {
             reviewsRef.child(productId).child(reviewId).setValue(review)
-                    .addOnSuccessListener(aVoid -> Toast.makeText(this, "Review added", Toast.LENGTH_SHORT).show())
+                    .addOnSuccessListener(aVoid -> {
+                        Toast.makeText(this, "Review added", Toast.LENGTH_SHORT).show();
+                        updateProductAvgRating(productId); // update avg rating
+                    })
                     .addOnFailureListener(e -> Toast.makeText(this, "Failed to add review", Toast.LENGTH_SHORT).show());
         }
+    }
+
+    // Recalculate avg rating and count, and update product node
+    private void updateProductAvgRating(String productId) {
+        DatabaseReference _reviewsRef = FirebaseDatabase.getInstance("https://easyshop-24640-default-rtdb.firebaseio.com/")
+                .getReference("reviews").child(productId);
+
+        _reviewsRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                int count = 0;
+                float total = 0f;
+                for (DataSnapshot reviewSnap : snapshot.getChildren()) {
+                    Review r = reviewSnap.getValue(Review.class);
+                    if (r != null) {
+                        total += r.getRating();
+                        count++;
+                    }
+                }
+                float avg = count > 0 ? total / count : 0f;
+                DatabaseReference productRef = FirebaseDatabase.getInstance("https://easyshop-24640-default-rtdb.firebaseio.com/")
+                        .getReference("products").child(productId);
+                productRef.child("avgRating").setValue(avg);
+                productRef.child("reviewCount").setValue(count);
+            }
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) { }
+        });
     }
 }

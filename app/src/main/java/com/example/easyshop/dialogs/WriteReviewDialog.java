@@ -13,6 +13,8 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RatingBar;
 import android.widget.Toast;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.DialogFragment;
@@ -21,8 +23,6 @@ import com.example.easyshop.R;
 import com.example.easyshop.models.Review;
 import com.google.android.material.button.MaterialButton;
 import org.json.JSONObject;
-
-import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
@@ -36,6 +36,9 @@ public class WriteReviewDialog extends DialogFragment {
     private MaterialButton sendReviewButton;
     private List<Uri> selectedImageUris = new ArrayList<>();
 
+    // ActivityResultLauncher must be registered in onCreate (not on click)
+    private ActivityResultLauncher<String[]> pickImageLauncher;
+
     public interface OnReviewSubmitListener {
         void onReviewSubmitted(Review review, List<String> photoUrls);
     }
@@ -47,6 +50,20 @@ public class WriteReviewDialog extends DialogFragment {
         if (context instanceof OnReviewSubmitListener) {
             reviewSubmitListener = (OnReviewSubmitListener) context;
         }
+    }
+
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        pickImageLauncher = registerForActivityResult(
+                new ActivityResultContracts.OpenDocument(),
+                uri -> {
+                    if (uri != null) {
+                        selectedImageUris.add(uri);
+                        addPhotoPreview(uri);
+                    }
+                }
+        );
     }
 
     @NonNull
@@ -81,18 +98,9 @@ public class WriteReviewDialog extends DialogFragment {
         return dialog;
     }
 
-    // Pick image using Storage Access Framework
+    // Use the registered pickImageLauncher
     private void pickImage() {
-        if (getActivity() == null) return;
-        androidx.activity.result.ActivityResultLauncher<String[]> launcher =
-                ((androidx.activity.ComponentActivity) getActivity())
-                        .registerForActivityResult(new androidx.activity.result.contract.ActivityResultContracts.OpenDocument(), uri -> {
-                            if (uri != null) {
-                                selectedImageUris.add(uri);
-                                addPhotoPreview(uri);
-                            }
-                        });
-        launcher.launch(new String[]{"image/*"});
+        pickImageLauncher.launch(new String[]{"image/*"});
     }
 
     private void addPhotoPreview(Uri uri) {
@@ -153,7 +161,7 @@ public class WriteReviewDialog extends DialogFragment {
                     .build();
 
             client.newCall(request).enqueue(new Callback() {
-                @Override public void onFailure(@NonNull Call call, @NonNull IOException e) {
+                @Override public void onFailure(@NonNull Call call, @NonNull java.io.IOException e) {
                     listener.onUploaded(null);
                 }
                 @Override public void onResponse(@NonNull Call call, @NonNull Response response) {
@@ -201,10 +209,12 @@ public class WriteReviewDialog extends DialogFragment {
         review.setPhotoUrls(photoUrls);
 
         if (reviewSubmitListener != null) {
-            getActivity().runOnUiThread(() -> {
-                reviewSubmitListener.onReviewSubmitted(review, photoUrls);
-                dismiss();
-            });
+            if (getActivity() != null) {
+                getActivity().runOnUiThread(() -> {
+                    reviewSubmitListener.onReviewSubmitted(review, photoUrls);
+                    dismiss();
+                });
+            }
         }
     }
 }
