@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="64dp"
+    android:orientation="horizontal"
+    android:background="@android:color/white"
+    android:gravity="center"
+    android:weightSum="5"
+    android:elevation="8dp">
+
+    <!-- Home -->
+    <LinearLayout
+        android:id="@+id/nav_home"
+        android:layout_width="0dp"
+        android:layout_weight="1"
+        android:background="?attr/selectableItemBackground"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:gravity="center"
+        android:paddingTop="8dp"
+        android:paddingBottom="8dp">
+
+        <ImageView
+            android:id="@+id/icon_home"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:src="@drawable/ic_home" />
+
+        <TextView
+            android:id="@+id/text_home"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/nav_home"
+            android:textSize="14sp"
+            android:textStyle="bold"
+            android:textColor="@color/bottom_nav_selected" />
+    </LinearLayout>
+
+    <!-- Shop -->
+    <LinearLayout
+        android:id="@+id/nav_shop"
+        android:layout_width="0dp"
+        android:layout_weight="1"
+        android:background="?attr/selectableItemBackground"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:gravity="center"
+        android:paddingTop="8dp"
+        android:paddingBottom="8dp">
+
+        <ImageView
+            android:id="@+id/icon_shop"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:src="@drawable/ic_cart" />
+
+        <TextView
+            android:id="@+id/text_shop"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/nav_shop"
+            android:textSize="14sp"
+            android:textColor="@color/bottom_nav_unselected" />
+    </LinearLayout>
+
+    <!-- Bag -->
+    <LinearLayout
+        android:id="@+id/nav_bag"
+        android:layout_width="0dp"
+        android:layout_weight="1"
+        android:background="?attr/selectableItemBackground"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:gravity="center"
+        android:paddingTop="8dp"
+        android:paddingBottom="8dp">
+
+        <ImageView
+            android:id="@+id/icon_bag"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:src="@drawable/ic_bag" />
+
+        <TextView
+            android:id="@+id/text_bag"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/nav_bag"
+            android:textSize="14sp"
+            android:textColor="@color/bottom_nav_unselected" />
+    </LinearLayout>
+
+    <!-- Favorites -->
+    <LinearLayout
+        android:id="@+id/nav_favorites"
+        android:layout_width="0dp"
+        android:layout_weight="1"
+        android:background="?attr/selectableItemBackground"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:gravity="center"
+        android:paddingTop="8dp"
+        android:paddingBottom="8dp">
+
+        <ImageView
+            android:id="@+id/icon_favorites"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:src="@drawable/ic_favorite" />
+
+        <TextView
+            android:id="@+id/text_favorites"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/nav_favorites"
+            android:textSize="14sp"
+            android:textColor="@color/bottom_nav_unselected" />
+    </LinearLayout>
+
+    <!-- Profile -->
+    <LinearLayout
+        android:id="@+id/nav_profile"
+        android:layout_width="0dp"
+        android:layout_weight="1"
+        android:background="?attr/selectableItemBackground"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:gravity="center"
+        android:paddingTop="8dp"
+        android:paddingBottom="8dp">
+
+        <ImageView
+            android:id="@+id/icon_profile"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:src="@drawable/ic_person" />
+
+        <TextView
+            android:id="@+id/text_profile"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/nav_profile"
+            android:textSize="14sp"
+            android:textColor="@color/bottom_nav_unselected" />
+    </LinearLayout>
+</LinearLayout>

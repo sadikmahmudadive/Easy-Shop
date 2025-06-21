@@ -21,7 +21,7 @@ public class ProductGridAdapter extends RecyclerView.Adapter<ProductGridAdapter.
     private Context context;
     private List<Product> productList;
 
-    public ProductGridAdapter(Context context, List<Product> productList) {
+    public ProductGridAdapter(Context context, List<Product> productList, boolean isGrid) {
         this.context = context;
         this.productList = productList;
     }
@@ -56,6 +56,10 @@ public class ProductGridAdapter extends RecyclerView.Adapter<ProductGridAdapter.
     @Override
     public int getItemCount() {
         return productList.size();
+    }
+
+    public void setGrid(boolean isGrid) {
+
     }
 
     public static class ProductViewHolder extends RecyclerView.ViewHolder {

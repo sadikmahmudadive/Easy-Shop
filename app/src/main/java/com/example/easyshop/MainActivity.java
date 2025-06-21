@@ -2,12 +2,12 @@ package com.example.easyshop;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.annotation.NonNull;
+import androidx.annotation.ColorInt;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.Fragment;
@@ -20,13 +20,13 @@ import com.example.easyshop.fragments.ShopFragment;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
-import com.google.android.material.bottomnavigation.BottomNavigationView;
-import com.google.android.material.navigation.NavigationBarView;
 import com.google.firebase.auth.FirebaseAuth;
 
 public class MainActivity extends AppCompatActivity {
 
-    private BottomNavigationView bottomNavigationView;
+    private LinearLayout navHome, navShop, navBag, navFavorites, navProfile;
+    private ImageView iconHome, iconShop, iconBag, iconFavorites, iconProfile;
+    private TextView textHome, textShop, textBag, textFavorites, textProfile;
     private FirebaseAuth mAuth;
     private GoogleSignInClient mGoogleSignInClient;
 
@@ -35,11 +35,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        // --- 1. Setup the Toolbar as the app bar ---
-        Toolbar toolbar = findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
-
-        // --- 2. Initialize Firebase and Google Sign-In for Logout ---
+        // Firebase and Google Sign-In
         mAuth = FirebaseAuth.getInstance();
         GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
                 .requestIdToken(getString(R.string.default_web_client_id))
@@ -47,79 +43,109 @@ public class MainActivity extends AppCompatActivity {
                 .build();
         mGoogleSignInClient = GoogleSignIn.getClient(this, gso);
 
-        // --- 3. Setup Bottom Navigation View ---
-        bottomNavigationView = findViewById(R.id.bottom_navigation);
-        bottomNavigationView.setOnItemSelectedListener(new NavigationBarView.OnItemSelectedListener() {
-            @Override
-            public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-                Fragment selectedFragment = null;
-                int itemId = item.getItemId();
+        // Custom Bottom Nav Bar
+        navHome = findViewById(R.id.nav_home);
+        navShop = findViewById(R.id.nav_shop);
+        navBag = findViewById(R.id.nav_bag);
+        navFavorites = findViewById(R.id.nav_favorites);
+        navProfile = findViewById(R.id.nav_profile);
 
-                if (itemId == R.id.nav_home) {
-                    selectedFragment = new HomeFragment();
-                } else if (itemId == R.id.nav_shop) {
-                    selectedFragment = new ShopFragment();
-                } else if (itemId == R.id.nav_bag) {
-                    selectedFragment = new BagFragment();
-                } else if (itemId == R.id.nav_favorites) {
-                    selectedFragment = new FavoritesFragment();
-                } else if (itemId == R.id.nav_profile) {
-                    selectedFragment = new ProfileFragment();
-                }
+        iconHome = findViewById(R.id.icon_home);
+        iconShop = findViewById(R.id.icon_shop);
+        iconBag = findViewById(R.id.icon_bag);
+        iconFavorites = findViewById(R.id.icon_favorites);
+        iconProfile = findViewById(R.id.icon_profile);
 
-                if (selectedFragment != null) {
-                    getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, selectedFragment).commit();
-                    return true;
-                }
-                return false;
-            }
-        });
+        textHome = findViewById(R.id.text_home);
+        textShop = findViewById(R.id.text_shop);
+        textBag = findViewById(R.id.text_bag);
+        textFavorites = findViewById(R.id.text_favorites);
+        textProfile = findViewById(R.id.text_profile);
 
-        // --- 4. Load the HomeFragment by default when the app starts ---
+        navHome.setOnClickListener(v -> { selectTab(0); animateTab(navHome); });
+        navShop.setOnClickListener(v -> { selectTab(1); animateTab(navShop); });
+        navBag.setOnClickListener(v -> { selectTab(2); animateTab(navBag); });
+        navFavorites.setOnClickListener(v -> { selectTab(3); animateTab(navFavorites); });
+        navProfile.setOnClickListener(v -> { selectTab(4); animateTab(navProfile); });
+
+        // Default fragment
         if (savedInstanceState == null) {
-            getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new HomeFragment()).commit();
-            bottomNavigationView.setSelectedItemId(R.id.nav_home);
+            selectTab(0);
         }
     }
 
-    /**
-     * Inflates the options menu, adding the "Logout" item to the app bar.
-     */
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.main_menu, menu);
-        return true;
+    // Tab selection logic
+    private void selectTab(int tab) {
+        @ColorInt int selected = getColor(R.color.bottom_nav_selected);
+        @ColorInt int unselected = getColor(R.color.bottom_nav_unselected);
+
+        iconHome.setColorFilter(unselected);
+        textHome.setTextColor(unselected);
+        iconShop.setColorFilter(unselected);
+        textShop.setTextColor(unselected);
+        iconBag.setColorFilter(unselected);
+        textBag.setTextColor(unselected);
+        iconFavorites.setColorFilter(unselected);
+        textFavorites.setTextColor(unselected);
+        iconProfile.setColorFilter(unselected);
+        textProfile.setTextColor(unselected);
+
+        Fragment selectedFragment = null;
+        switch (tab) {
+            case 0:
+                iconHome.setColorFilter(selected);
+                textHome.setTextColor(selected);
+                selectedFragment = new HomeFragment();
+                break;
+            case 1:
+                iconShop.setColorFilter(selected);
+                textShop.setTextColor(selected);
+                selectedFragment = new ShopFragment();
+                break;
+            case 2:
+                iconBag.setColorFilter(selected);
+                textBag.setTextColor(selected);
+                selectedFragment = new BagFragment();
+                break;
+            case 3:
+                iconFavorites.setColorFilter(selected);
+                textFavorites.setTextColor(selected);
+                selectedFragment = new FavoritesFragment();
+                break;
+            case 4:
+                iconProfile.setColorFilter(selected);
+                textProfile.setTextColor(selected);
+                selectedFragment = new ProfileFragment();
+                break;
+        }
+        if (selectedFragment != null) {
+            getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, selectedFragment).commit();
+        }
     }
 
-    /**
-     * Handles clicks on the options menu items, specifically the logout button.
-     * This provides a secondary way for the user to log out.
-     */
-    @Override
-    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-        if (item.getItemId() == R.id.action_logout) {
-            logoutUser();
-            return true;
-        }
-        return super.onOptionsItemSelected(item);
+    // Animate tab selection
+    private void animateTab(LinearLayout tab) {
+        tab.animate()
+                .scaleX(1.15f)
+                .scaleY(1.15f)
+                .setDuration(120)
+                .withEndAction(() -> tab.animate()
+                        .scaleX(1f)
+                        .scaleY(1f)
+                        .setDuration(120)
+                        .start())
+                .start();
     }
 
     /**
      * Signs the user out from both Firebase Authentication and Google Sign-In,
-     * then navigates back to the LoginActivity. This method is public so it can
-     * be called from the ProfileFragment.
+     * then navigates back to the LoginActivity.
      */
     public void logoutUser() {
-        // Sign out from Firebase Auth
         mAuth.signOut();
-
-        // Sign out from Google Sign-In Client
         mGoogleSignInClient.signOut().addOnCompleteListener(this, task -> {
-            // After signing out from both, navigate to LoginActivity
             Toast.makeText(MainActivity.this, "You have been logged out.", Toast.LENGTH_SHORT).show();
             Intent intent = new Intent(MainActivity.this, LoginActivity.class);
-            // Clear the activity stack to prevent the user from navigating back
             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
             startActivity(intent);
             finish();

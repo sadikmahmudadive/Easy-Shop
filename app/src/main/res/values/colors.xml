@@ -25,4 +25,6 @@
     <color name="purple_700">#5f249f</color>
     <color name="teal_200">#03DAC5</color>
     <color name="teal_700">#018786</color>
+    <color name="bottom_nav_selected">#F44336</color>
+    <color name="bottom_nav_unselected">#757575</color>
 </resources>

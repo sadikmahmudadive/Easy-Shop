@@ -14,6 +14,33 @@
     <string name="helpful">Helpful</string>
     <string name="with_photo">With photo</string>
     <string name="back">Back</string>
+    <string name="logout">Logout</string>
+
+    <!-- Navigation & Toolbar -->
+    <string name="categories">Categories</string>
+    <string name="search">Search</string>
+    <string name="filters">Filters</string>
+    <string name="filter">Filter</string>
+    <string name="sort">Sort</string>
+    <string name="switch_layout">Switch layout</string>
+    <string name="price_lowest_to_high">Price: lowest to high</string>
+    <string name="price_highest_to_low">Price: highest to low</string>
+    <string name="popular">Popular</string>
+    <string name="newest">Newest</string>
+    <string name="customer_review">Customer review</string>
+    <string name="select_size">Select size</string>
+    <string name="size_info">Size info</string>
+    <string name="apply">Apply</string>
+    <string name="discard">Discard</string>
+
+    <!-- Category Tabs -->
+    <string name="category_women">Women</string>
+    <string name="category_men">Men</string>
+    <string name="category_kids">Kids</string>
+    <string name="category_new">New</string>
+    <string name="category_clothes">Clothes</string>
+    <string name="category_shoes">Shoes</string>
+    <string name="category_accessories">Accessories</string>
 
     <!-- Placeholder Text -->
     <string name="product_description_placeholder">A comfortable and stylish item perfect for any occasion. Made from high-quality materials, it offers a modern fit and lasting durability. Available in multiple colors and sizes to suit your style.</string>
@@ -30,4 +57,25 @@
 
     <!-- Date format -->
     <string name="review_date_format">%1$s</string>
+
+    <!-- Banner -->
+    <string name="summer_sales">SUMMER SALES</string>
+    <string name="up_to_50_off">Up to 50% off</string>
+
+    <!-- Sort Dialog -->
+    <string name="sort_by">Sort by</string>
+
+    <!-- Filters -->
+    <string name="price_range">Price range</string>
+    <string name="colors">Colors</string>
+    <string name="sizes">Sizes</string>
+    <string name="category">Category</string>
+    <string name="brand">Brand</string>
+
+    <!-- Bottom Navigation -->
+    <string name="nav_home">Home</string>
+    <string name="nav_shop">Shop</string>
+    <string name="nav_bag">Bag</string>
+    <string name="nav_favorites">Favorites</string>
+    <string name="nav_profile">Profile</string>
 </resources>
