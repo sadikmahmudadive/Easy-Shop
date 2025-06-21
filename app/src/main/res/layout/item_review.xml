@@ -1,0 +1,113 @@
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginTop="8dp"
+    android:layout_marginBottom="8dp"
+    app:cardCornerRadius="12dp"
+    app:cardElevation="3dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp">
+
+        <!-- Reviewer info -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <ImageView
+                android:id="@+id/image_avatar"
+                android:layout_width="36dp"
+                android:layout_height="36dp"
+                android:layout_marginEnd="8dp"
+                android:src="@drawable/placeholder_image"
+                android:scaleType="centerCrop"
+                android:background="@drawable/circle_bg"
+                android:contentDescription="@string/avatar" />
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/text_user_name"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Helene Moore"
+                    android:textStyle="bold"
+                    android:textSize="15sp" />
+
+                <RatingBar
+                    android:id="@+id/rating_stars"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:numStars="5"
+                    android:isIndicator="true"
+                    android:stepSize="1"
+                    android:rating="4"
+                    style="@style/Widget.AppCompat.RatingBar.Small"
+                    android:layout_marginTop="2dp"/>
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/text_review_date"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="June 5, 2019"
+                android:textColor="@color/gray"
+                android:textSize="12sp"
+                android:layout_marginStart="8dp"/>
+        </LinearLayout>
+
+        <!-- Review content -->
+        <TextView
+            android:id="@+id/text_review_content"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="The dress is great! Very classy and comfortable..."
+            android:textSize="15sp"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="8dp"/>
+
+        <!-- Optional: Review photos -->
+        <LinearLayout
+            android:id="@+id/layout_review_photos"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginBottom="8dp">
+            <!-- Dynamically add ImageViews for photos -->
+        </LinearLayout>
+
+        <!-- Helpful section -->
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical">
+
+            <TextView
+                android:id="@+id/text_helpful"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Helpful"
+                android:textColor="@color/gray"
+                android:textSize="13sp"
+                android:layout_marginEnd="4dp" />
+
+            <ImageView
+                android:id="@+id/icon_helpful"
+                android:layout_width="18dp"
+                android:layout_height="18dp"
+                android:src="@drawable/ic_thumb_up"
+                app:tint="@color/gray" />
+        </LinearLayout>
+    </LinearLayout>
+</androidx.cardview.widget.CardView>

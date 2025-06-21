@@ -1,0 +1,216 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/root"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@android:color/white"
+    android:orientation="vertical"
+    android:padding="16dp">
+
+    <!-- Header -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
+
+        <ImageButton
+            android:id="@+id/button_back"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:src="@drawable/ic_arrow_back"
+            android:contentDescription="@string/back" />
+
+        <TextView
+            android:id="@+id/text_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Rating and Reviews"
+            android:textStyle="bold"
+            android:textSize="20sp"
+            android:layout_gravity="center"
+            android:layout_marginStart="16dp" />
+    </LinearLayout>
+
+    <!-- Ratings Summary -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:paddingTop="16dp"
+        android:paddingBottom="8dp">
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:gravity="center"
+            android:layout_marginEnd="12dp">
+
+            <TextView
+                android:id="@+id/text_avg_rating"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="4.3"
+                android:textStyle="bold"
+                android:textSize="40sp"
+                android:textColor="@color/colorPrimary" />
+
+            <RatingBar
+                android:id="@+id/rating_bar_avg"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:isIndicator="true"
+                android:stepSize="0.1"
+                android:numStars="5"
+                android:rating="4.3"
+                style="@style/Widget.AppCompat.RatingBar.Small" />
+
+            <TextView
+                android:id="@+id/text_num_ratings"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="23 ratings"
+                android:textColor="@color/gray"
+                android:textSize="14sp" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:gravity="center_vertical">
+
+            <!-- Star breakdown rows (repeat for 5-1 stars) -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:layout_marginBottom="2dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="5"
+                    android:textColor="@color/gray"
+                    android:textSize="13sp" />
+
+                <ImageView
+                    android:layout_width="14dp"
+                    android:layout_height="14dp"
+                    android:layout_marginStart="2dp"
+                    android:src="@drawable/ic_star"
+                    app:tint="@color/rating_yellow" />
+
+                <ProgressBar
+                    style="?android:attr/progressBarStyleHorizontal"
+                    android:id="@+id/progress_five_star"
+                    android:layout_width="0dp"
+                    android:layout_height="8dp"
+                    android:layout_weight="1"
+                    android:layout_marginStart="6dp"
+                    android:progress="60"
+                    android:max="100"
+                    android:progressTint="@color/rating_yellow"
+                    android:backgroundTint="@color/light_grey" />
+
+                <TextView
+                    android:id="@+id/text_five_star_count"
+                    android:layout_width="30dp"
+                    android:layout_height="wrap_content"
+                    android:text="12"
+                    android:textAlignment="viewEnd"
+                    android:textColor="@color/gray"
+                    android:textSize="12sp"
+                    android:layout_marginStart="6dp" />
+            </LinearLayout>
+            <!-- Repeat above block for 4, 3, 2, 1 stars, changing id/text/progress accordingly -->
+            <!-- 4 stars -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:layout_marginBottom="2dp">
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="4" android:textColor="@color/gray" android:textSize="13sp" />
+                <ImageView android:layout_width="14dp" android:layout_height="14dp" android:layout_marginStart="2dp" android:src="@drawable/ic_star"
+                    app:tint="@color/rating_yellow" />
+                <ProgressBar style="?android:attr/progressBarStyleHorizontal" android:id="@+id/progress_four_star" android:layout_width="0dp" android:layout_height="8dp" android:layout_weight="1" android:layout_marginStart="6dp" android:progress="25" android:max="100" android:progressTint="@color/rating_yellow" android:backgroundTint="@color/light_grey" />
+                <TextView android:id="@+id/text_four_star_count" android:layout_width="30dp" android:layout_height="wrap_content" android:text="5" android:textAlignment="viewEnd" android:textColor="@color/gray" android:textSize="12sp" android:layout_marginStart="6dp" />
+            </LinearLayout>
+            <!-- 3 stars -->
+            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center_vertical" android:layout_marginBottom="2dp">
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="3" android:textColor="@color/gray" android:textSize="13sp" />
+                <ImageView android:layout_width="14dp" android:layout_height="14dp" android:layout_marginStart="2dp" android:src="@drawable/ic_star"
+                    app:tint="@color/rating_yellow" />
+                <ProgressBar style="?android:attr/progressBarStyleHorizontal" android:id="@+id/progress_three_star" android:layout_width="0dp" android:layout_height="8dp" android:layout_weight="1" android:layout_marginStart="6dp" android:progress="10" android:max="100" android:progressTint="@color/rating_yellow" android:backgroundTint="@color/light_grey" />
+                <TextView android:id="@+id/text_three_star_count" android:layout_width="30dp" android:layout_height="wrap_content" android:text="4" android:textAlignment="viewEnd" android:textColor="@color/gray" android:textSize="12sp" android:layout_marginStart="6dp" />
+            </LinearLayout>
+            <!-- 2 stars -->
+            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center_vertical" android:layout_marginBottom="2dp">
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="2" android:textColor="@color/gray" android:textSize="13sp" />
+                <ImageView android:layout_width="14dp" android:layout_height="14dp" android:layout_marginStart="2dp" android:src="@drawable/ic_star"
+                    app:tint="@color/rating_yellow" />
+                <ProgressBar style="?android:attr/progressBarStyleHorizontal" android:id="@+id/progress_two_star" android:layout_width="0dp" android:layout_height="8dp" android:layout_weight="1" android:layout_marginStart="6dp" android:progress="5" android:max="100" android:progressTint="@color/rating_yellow" android:backgroundTint="@color/light_grey" />
+                <TextView android:id="@+id/text_two_star_count" android:layout_width="30dp" android:layout_height="wrap_content" android:text="2" android:textAlignment="viewEnd" android:textColor="@color/gray" android:textSize="12sp" android:layout_marginStart="6dp" />
+            </LinearLayout>
+            <!-- 1 star -->
+            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center_vertical">
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="1" android:textColor="@color/gray" android:textSize="13sp" />
+                <ImageView android:layout_width="14dp" android:layout_height="14dp" android:layout_marginStart="2dp" android:src="@drawable/ic_star"
+                    app:tint="@color/rating_yellow" />
+                <ProgressBar style="?android:attr/progressBarStyleHorizontal" android:id="@+id/progress_one_star" android:layout_width="0dp" android:layout_height="8dp" android:layout_weight="1" android:layout_marginStart="6dp" android:progress="0" android:max="100" android:progressTint="@color/rating_yellow" android:backgroundTint="@color/light_grey" />
+                <TextView android:id="@+id/text_one_star_count" android:layout_width="30dp" android:layout_height="wrap_content" android:text="0" android:textAlignment="viewEnd" android:textColor="@color/gray" android:textSize="12sp" android:layout_marginStart="6dp" />
+            </LinearLayout>
+        </LinearLayout>
+    </LinearLayout>
+
+    <!-- Reviews title and filter -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingBottom="8dp"
+        android:paddingTop="8dp">
+
+        <TextView
+            android:id="@+id/text_reviews_count"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="8 reviews"
+            android:textStyle="bold"
+            android:textSize="16sp" />
+
+        <CheckBox
+            android:id="@+id/checkbox_with_photo"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:text="With photo" />
+    </LinearLayout>
+
+    <!-- Reviews List -->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recycler_reviews"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:paddingBottom="8dp" />
+
+    <!-- Write a review button -->
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/button_write_review"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Write a review"
+        android:textAllCaps="false"
+        android:textStyle="bold"
+        android:icon="@drawable/ic_edit"
+        android:drawablePadding="8dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginBottom="8dp"
+        android:backgroundTint="@color/colorSecondaryVariant"
+        android:textColor="@android:color/white"/>
+</LinearLayout>

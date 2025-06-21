@@ -1,0 +1,14 @@
+<resources>
+    <string-array name="size_options">
+        <item>XS</item>
+        <item>S</item>
+        <item>M</item>
+        <item>L</item>
+        <item>XL</item>
+    </string-array>
+    <string-array name="color_options">
+        <item>Black</item>
+        <item>Red</item>
+        <item>White</item>
+    </string-array>
+</resources>

@@ -1,0 +1,33 @@
+<resources>
+    <string name="app_name">Easy Shop</string>
+    <string name="default_web_client_id">1013803187301-0u4jlrmbuj14rtal0etd77a4pethm4s9.apps.googleusercontent.com</string>
+
+    <!-- Content Descriptions for Images -->
+    <string name="product_image">Product Image</string>
+    <string name="avatar">User Avatar</string>
+    <string name="add_your_photos">Add your photos</string>
+
+    <!-- Button and Action Labels -->
+    <string name="add_to_bag">Add to Bag</string>
+    <string name="write_a_review">Write a review</string>
+    <string name="send_review">Send Review</string>
+    <string name="helpful">Helpful</string>
+    <string name="with_photo">With photo</string>
+    <string name="back">Back</string>
+
+    <!-- Placeholder Text -->
+    <string name="product_description_placeholder">A comfortable and stylish item perfect for any occasion. Made from high-quality materials, it offers a modern fit and lasting durability. Available in multiple colors and sizes to suit your style.</string>
+    <string name="review_placeholder">Your review</string>
+    <string name="review_opinion_hint">Please share your opinion about the product</string>
+
+    <string name="product_image_desc">Product Image</string>
+
+    <!-- Ratings & Reviews -->
+    <string name="rating_reviews_title">Rating &amp; Reviews</string>
+    <string name="num_ratings">%1$d ratings</string>
+    <string name="num_reviews">%1$d reviews</string>
+    <string name="what_is_your_rate">What is your rate?</string>
+
+    <!-- Date format -->
+    <string name="review_date_format">%1$s</string>
+</resources>

@@ -1,0 +1,275 @@
+package com.example.easyshop;
+
+import android.content.Intent;
+import android.graphics.Paint;
+import android.os.Bundle;
+import android.widget.CheckBox;
+import android.widget.Toast;
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+import androidx.viewpager2.widget.ViewPager2;
+
+import com.bumptech.glide.Glide;
+import com.example.easyshop.adapters.ReviewsAdapter;
+import com.example.easyshop.adapters.SimilarProductsAdapter;
+import com.example.easyshop.dialogs.WriteReviewDialog;
+import com.example.easyshop.models.Product;
+import com.example.easyshop.models.Review;
+import com.google.android.material.button.MaterialButton;
+import com.google.firebase.database.*;
+
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.ImageView;
+import android.widget.TextView;
+
+import java.util.ArrayList;
+import java.util.List;
+
+public class ProductDetailsActivity extends AppCompatActivity implements WriteReviewDialog.OnReviewSubmitListener {
+
+    private ViewPager2 imageCarousel;
+    private TextView productTitle, productBrand, productCategory, productPrice, productOldPrice, productRating, productReviewCount, productDescription;
+    private MaterialButton favoriteButton;
+    private Button addToCartButton;
+    private RecyclerView similarProductsRecycler, reviewsRecycler;
+    private List<Product> similarProductsList = new ArrayList<>();
+    private List<Review> reviewList = new ArrayList<>();
+    private SimilarProductsAdapter similarProductsAdapter;
+    private ReviewsAdapter reviewsAdapter;
+    private DatabaseReference productsRef, reviewsRef;
+    private Product currentProduct;
+
+    private MaterialButton writeReviewButton;
+    private CheckBox checkboxWithPhoto;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_product_details);
+
+        // Initialize views
+        imageCarousel = findViewById(R.id.product_image_carousel);
+        productTitle = findViewById(R.id.product_title);
+        productBrand = findViewById(R.id.product_brand);
+        productCategory = findViewById(R.id.product_category);
+        productPrice = findViewById(R.id.product_price);
+        productOldPrice = findViewById(R.id.product_old_price);
+        productRating = findViewById(R.id.product_rating);
+        productReviewCount = findViewById(R.id.product_review_count);
+        productDescription = findViewById(R.id.product_description);
+        addToCartButton = findViewById(R.id.button_add_to_cart);
+        favoriteButton = findViewById(R.id.button_favorite);
+        similarProductsRecycler = findViewById(R.id.recycler_similar_products);
+        reviewsRecycler = findViewById(R.id.recycler_reviews);
+        writeReviewButton = findViewById(R.id.button_write_review);
+        checkboxWithPhoto = findViewById(R.id.checkbox_with_photo);
+
+        productOldPrice.setPaintFlags(productOldPrice.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
+
+        similarProductsAdapter = new SimilarProductsAdapter(similarProductsList);
+        similarProductsRecycler.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
+        similarProductsRecycler.setAdapter(similarProductsAdapter);
+
+        reviewsAdapter = new ReviewsAdapter(this, reviewList);
+        reviewsRecycler.setLayoutManager(new LinearLayoutManager(this));
+        reviewsRecycler.setAdapter(reviewsAdapter);
+
+        similarProductsAdapter.setOnItemClickListener(product -> {
+            if (product != null && product.getProductId() != null) {
+                if (currentProduct != null && product.getProductId().equals(currentProduct.getProductId())) {
+                    return;
+                }
+                Intent intent = new Intent(ProductDetailsActivity.this, ProductDetailsActivity.class);
+                intent.putExtra("product_id", product.getProductId());
+                startActivity(intent);
+            }
+        });
+
+        FirebaseDatabase database = FirebaseDatabase.getInstance("https://easyshop-24640-default-rtdb.firebaseio.com/");
+        productsRef = database.getReference("products");
+        reviewsRef = database.getReference("reviews");
+
+        String productId = getIntent().getStringExtra("product_id");
+        if (productId != null && !productId.isEmpty()) {
+            fetchProduct(productId);
+            fetchReviews(productId);
+        } else {
+            Toast.makeText(this, "No product ID supplied!", Toast.LENGTH_SHORT).show();
+            finish();
+        }
+
+        addToCartButton.setOnClickListener(v -> addToCart());
+        if (favoriteButton != null) {
+            favoriteButton.setOnClickListener(v -> toggleFavorite());
+        }
+
+        if (writeReviewButton != null) {
+            writeReviewButton.setOnClickListener(v -> {
+                WriteReviewDialog dialog = new WriteReviewDialog();
+                dialog.show(getSupportFragmentManager(), "WriteReviewDialog");
+            });
+        }
+
+        if (checkboxWithPhoto != null) {
+            checkboxWithPhoto.setOnCheckedChangeListener((buttonView, isChecked) -> {
+                reviewsAdapter.filterWithPhotos(isChecked);
+            });
+        }
+    }
+
+    private void fetchProduct(String productId) {
+        productsRef.child(productId).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                currentProduct = snapshot.getValue(Product.class);
+                if (currentProduct != null) {
+                    updateProductUI(currentProduct);
+                    fetchSimilarProducts(currentProduct.getCategory());
+                } else {
+                    Toast.makeText(ProductDetailsActivity.this, "Product not found!", Toast.LENGTH_SHORT).show();
+                    finish();
+                }
+            }
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                Toast.makeText(ProductDetailsActivity.this, "Failed to fetch product", Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    private void updateProductUI(Product product) {
+        productTitle.setText(nonNull(product.getName()));
+        productBrand.setText(nonNull(product.getBrand()));
+        productCategory.setText(nonNull(product.getCategory()));
+        productPrice.setText("$" + nonNull(product.getPrice()));
+        productOldPrice.setText(product.getOldPrice() != null ? "$" + product.getOldPrice() : "");
+        productRating.setText(String.valueOf(product.getRating()));
+        productReviewCount.setText("(" + product.getReviewCount() + ")");
+        productDescription.setText(nonNull(product.getDescription()));
+
+        List<String> imagesList = product.getImageUrls();
+        List<String> fallbackList = new ArrayList<>();
+        if (imagesList != null && !imagesList.isEmpty()) {
+            imageCarousel.setAdapter(new ImageCarouselAdapter(imagesList));
+        } else if (product.getImageUrl() != null && !product.getImageUrl().isEmpty()) {
+            fallbackList.add(product.getImageUrl());
+            imageCarousel.setAdapter(new ImageCarouselAdapter(fallbackList));
+        }
+        if (favoriteButton != null) {
+            favoriteButton.setIconResource(product.isFavorite() ? R.drawable.ic_favorite_filled : R.drawable.ic_favorite_border);
+        }
+    }
+
+    private void fetchSimilarProducts(String category) {
+        productsRef.orderByChild("category").equalTo(category).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                similarProductsList.clear();
+                for (DataSnapshot dataSnapshot : snapshot.getChildren()) {
+                    Product product = dataSnapshot.getValue(Product.class);
+                    String productId = product.getProductId();
+                    String currentId = currentProduct != null ? currentProduct.getProductId() : null;
+                    if (currentId == null || productId == null || !productId.equals(currentId)) {
+                        similarProductsList.add(product);
+                    }
+                }
+                similarProductsAdapter.notifyDataSetChanged();
+            }
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                Toast.makeText(ProductDetailsActivity.this, "Failed to fetch similar products", Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    private void fetchReviews(String productId) {
+        reviewsRef.child(productId).addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                reviewList.clear();
+                for (DataSnapshot dataSnapshot : snapshot.getChildren()) {
+                    Review review = dataSnapshot.getValue(Review.class);
+                    if (review != null) reviewList.add(review);
+                }
+                reviewsAdapter.setReviews(reviewList);
+            }
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                Toast.makeText(ProductDetailsActivity.this, "Failed to fetch reviews", Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    private void addToCart() {
+        Toast.makeText(this, "Added to cart!", Toast.LENGTH_SHORT).show();
+    }
+
+    private void toggleFavorite() {
+        if (currentProduct != null) {
+            boolean newState = !currentProduct.isFavorite();
+            currentProduct.setFavorite(newState);
+            productsRef.child(currentProduct.getProductId()).child("isFavorite").setValue(newState);
+            if (favoriteButton != null) {
+                favoriteButton.setIconResource(newState ? R.drawable.ic_favorite_filled : R.drawable.ic_favorite_border);
+            }
+        }
+    }
+
+    private String nonNull(String s) {
+        return s == null ? "" : s;
+    }
+
+    private static class ImageCarouselAdapter extends RecyclerView.Adapter<ImageCarouselAdapter.ImageViewHolder> {
+        private final List<String> imageUrls;
+
+        public ImageCarouselAdapter(List<String> imageUrls) {
+            this.imageUrls = imageUrls;
+        }
+
+        @NonNull
+        @Override
+        public ImageViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+            View view = LayoutInflater.from(parent.getContext())
+                    .inflate(R.layout.item_product_image, parent, false);
+            return new ImageViewHolder(view);
+        }
+
+        @Override
+        public void onBindViewHolder(@NonNull ImageViewHolder holder, int position) {
+            Glide.with(holder.imageView.getContext())
+                    .load(imageUrls.get(position))
+                    .placeholder(R.drawable.placeholder_image)
+                    .into(holder.imageView);
+        }
+
+        @Override
+        public int getItemCount() {
+            return imageUrls.size();
+        }
+
+        static class ImageViewHolder extends RecyclerView.ViewHolder {
+            ImageView imageView;
+            ImageViewHolder(View itemView) {
+                super(itemView);
+                imageView = itemView.findViewById(R.id.image_product);
+            }
+        }
+    }
+
+    @Override
+    public void onReviewSubmitted(Review review, List<String> photoUrls) {
+        if (currentProduct == null) return;
+        String productId = currentProduct.getProductId();
+        String reviewId = reviewsRef.child(productId).push().getKey();
+        if (reviewId != null) {
+            reviewsRef.child(productId).child(reviewId).setValue(review)
+                    .addOnSuccessListener(aVoid -> Toast.makeText(this, "Review added", Toast.LENGTH_SHORT).show())
+                    .addOnFailureListener(e -> Toast.makeText(this, "Failed to add review", Toast.LENGTH_SHORT).show());
+        }
+    }
+}

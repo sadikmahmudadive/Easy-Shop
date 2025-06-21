@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="24dp">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Select size"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        android:layout_gravity="center"/>
+
+    <!-- Size options, as outlined MaterialButtons -->
+    <GridLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:columnCount="3"
+        android:rowCount="2"
+        android:layout_marginTop="16dp"
+        android:alignmentMode="alignMargins"
+        android:rowOrderPreserved="false">
+
+        <com.google.android.material.button.MaterialButton
+            android:layout_width="0dp"
+            android:layout_height="48dp"
+            android:layout_margin="4dp"
+            app:cornerRadius="16dp"
+            app:strokeColor="@color/grey"
+            app:strokeWidth="2dp"
+            style="?attr/materialButtonOutlinedStyle"
+            android:text="XS"/>
+
+        <com.google.android.material.button.MaterialButton
+            android:layout_width="0dp"
+            android:layout_height="48dp"
+            android:layout_margin="4dp"
+            app:cornerRadius="16dp"
+            app:strokeColor="@color/grey"
+            app:strokeWidth="2dp"
+            style="?attr/materialButtonOutlinedStyle"
+            android:text="S"/>
+
+        <com.google.android.material.button.MaterialButton
+            android:layout_width="0dp"
+            android:layout_height="48dp"
+            android:layout_margin="4dp"
+            app:cornerRadius="16dp"
+            app:strokeColor="@color/grey"
+            app:strokeWidth="2dp"
+            style="?attr/materialButtonOutlinedStyle"
+            android:text="M"/>
+
+        <com.google.android.material.button.MaterialButton
+            android:layout_width="0dp"
+            android:layout_height="48dp"
+            android:layout_margin="4dp"
+            app:cornerRadius="16dp"
+            app:strokeColor="@color/grey"
+            app:strokeWidth="2dp"
+            style="?attr/materialButtonOutlinedStyle"
+            android:text="L"/>
+
+        <com.google.android.material.button.MaterialButton
+            android:layout_width="0dp"
+            android:layout_height="48dp"
+            android:layout_margin="4dp"
+            app:cornerRadius="16dp"
+            app:strokeColor="@color/grey"
+            app:strokeWidth="2dp"
+            style="?attr/materialButtonOutlinedStyle"
+            android:text="XL"/>
+    </GridLayout>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Size info"
+        android:layout_marginTop="24dp"
+        android:textColor="@color/primary_blue"/>
+
+    <com.google.android.material.button.MaterialButton
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:text="ADD TO CART"
+        android:layout_marginTop="24dp"
+        android:backgroundTint="@color/colorSecondary"
+        android:textColor="@color/white"/>
+</LinearLayout>

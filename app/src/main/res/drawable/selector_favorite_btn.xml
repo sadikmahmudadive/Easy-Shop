@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<selector xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto">
+    <!-- State when the button is checked (favorited) -->
+    <item android:state_checked="true"
+        android:drawable="@drawable/ic_star"
+        app:tint="@color/primary_red" />
+
+    <!-- Default state (not checked) -->
+    <item android:state_checked="false"
+        android:drawable="@drawable/ic_star"
+        app:tint="@color/inactive_grey" />
+</selector>
