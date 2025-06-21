@@ -47,6 +47,9 @@ public class ProductDetailsActivity extends AppCompatActivity implements WriteRe
 
     private MaterialButton writeReviewButton;
     private CheckBox checkboxWithPhoto;
+    private ValueEventListener productListener;
+    private String lastSimilarCategory;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -124,13 +127,19 @@ public class ProductDetailsActivity extends AppCompatActivity implements WriteRe
     }
 
     private void fetchProduct(String productId) {
-        productsRef.child(productId).addValueEventListener(new ValueEventListener() {
+        DatabaseReference productRef = productsRef.child(productId);
+
+        // Remove any previous listener to avoid duplication
+        if (productListener != null) {
+            productRef.removeEventListener(productListener);
+        }
+
+        productListener = new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 currentProduct = snapshot.getValue(Product.class);
                 if (currentProduct != null) {
                     updateProductUI(currentProduct);
-                    fetchSimilarProducts(currentProduct.getCategory());
                 } else {
                     Toast.makeText(ProductDetailsActivity.this, "Product not found!", Toast.LENGTH_SHORT).show();
                     finish();
@@ -140,7 +149,16 @@ public class ProductDetailsActivity extends AppCompatActivity implements WriteRe
             public void onCancelled(@NonNull DatabaseError error) {
                 Toast.makeText(ProductDetailsActivity.this, "Failed to fetch product", Toast.LENGTH_SHORT).show();
             }
-        });
+        };
+        productRef.addValueEventListener(productListener); // Listen for ALL changes!
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if (productListener != null && currentProduct != null) {
+            productsRef.child(currentProduct.getProductId()).removeEventListener(productListener);
+        }
     }
 
     private void updateProductUI(Product product) {
@@ -149,7 +167,6 @@ public class ProductDetailsActivity extends AppCompatActivity implements WriteRe
         productCategory.setText(nonNull(product.getCategory()));
         productPrice.setText("$" + nonNull(product.getPrice()));
         productOldPrice.setText(product.getOldPrice() != null ? "$" + product.getOldPrice() : "");
-        // show avgRating as main rating
         productRating.setText(
                 product.getAvgRating() != null
                         ? String.format(Locale.US, "%.1f", product.getAvgRating())
@@ -168,6 +185,12 @@ public class ProductDetailsActivity extends AppCompatActivity implements WriteRe
         }
         if (favoriteButton != null) {
             favoriteButton.setIconResource(product.isFavorite() ? R.drawable.ic_favorite_filled : R.drawable.ic_favorite_border);
+        }
+
+        // --- Similar products fix ---
+        if (product.getCategory() != null && !product.getCategory().equals(lastSimilarCategory)) {
+            lastSimilarCategory = product.getCategory();
+            fetchSimilarProducts(product.getCategory());
         }
     }
 
