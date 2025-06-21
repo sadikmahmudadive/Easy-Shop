@@ -23,6 +23,7 @@ import com.example.easyshop.adapters.CategoryAdapter;
 import com.example.easyshop.adapters.ProductGridAdapter;
 import com.example.easyshop.models.Category;
 import com.example.easyshop.models.Product;
+import com.google.android.material.tabs.TabLayout;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -40,8 +41,8 @@ public class ShopFragment extends Fragment {
     private List<Product> productList;
     private ProgressBar progressBar;
     private DatabaseReference productsRef;
-    private LinearLayout categoryTabContainer;
 
+    private TabLayout categoryTabLayout;
     private boolean isGrid = true;
     private ImageButton btnLayoutSwitch;
     private ImageButton btnFilter;
@@ -61,7 +62,8 @@ public class ShopFragment extends Fragment {
         progressBar = view.findViewById(R.id.progress_bar_shop);
         rvShopProducts = view.findViewById(R.id.rv_shop_products);
         rvCategoryCards = view.findViewById(R.id.rv_category_cards);
-        categoryTabContainer = view.findViewById(R.id.category_tab_container);
+
+        categoryTabLayout = view.findViewById(R.id.category_tab_layout);
 
         btnLayoutSwitch = view.findViewById(R.id.btn_layout_switch);
         btnFilter = view.findViewById(R.id.btn_filter);
@@ -72,7 +74,6 @@ public class ShopFragment extends Fragment {
         // Logout button handler
         if (btnLogout != null) {
             btnLogout.setOnClickListener(v -> {
-                // Example: sign out with FirebaseAuth, show message, and/or navigate
                 FirebaseAuth.getInstance().signOut();
                 Toast.makeText(getContext(), getString(R.string.logout), Toast.LENGTH_SHORT).show();
                 // TODO: Navigate to login screen if needed
@@ -86,9 +87,9 @@ public class ShopFragment extends Fragment {
         rvShopProducts.setAdapter(productGridAdapter);
 
         // Setup categories
-        categoryList = Category.getDefaultCategories(); // ["New", "Clothes", "Shoes", "Accessories"]
+        categoryList = Category.getDefaultCategories(); // e.g., ["New", "Clothes", "Shoes", "Accessories"]
         categoryAdapter = new CategoryAdapter(categoryList, category -> fetchProductsByCategory(category.getName()));
-        rvCategoryCards.setLayoutManager(new LinearLayoutManager(getContext()));
+        rvCategoryCards.setLayoutManager(new LinearLayoutManager(getContext(), RecyclerView.HORIZONTAL, false));
         rvCategoryCards.setAdapter(categoryAdapter);
 
         setupCategoryTabs();
@@ -104,17 +105,20 @@ public class ShopFragment extends Fragment {
     }
 
     private void setupCategoryTabs() {
-        categoryTabContainer.removeAllViews();
+        categoryTabLayout.removeAllTabs();
         for (Category cat : categoryList) {
-            TextView tab = new TextView(getContext());
-            tab.setText(cat.getName());
-            tab.setBackgroundResource(R.drawable.tab_selector);
-            tab.setPadding(48, 20, 48, 20);
-            tab.setTextColor(getResources().getColorStateList(R.color.primary_red, null));
-            tab.setTextSize(16f);
-            tab.setOnClickListener(v -> fetchProductsByCategory(cat.getName()));
-            categoryTabContainer.addView(tab);
+            categoryTabLayout.addTab(categoryTabLayout.newTab().setText(cat.getName()));
         }
+        categoryTabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
+            @Override
+            public void onTabSelected(TabLayout.Tab tab) {
+                fetchProductsByCategory(tab.getText().toString());
+            }
+            @Override
+            public void onTabUnselected(TabLayout.Tab tab) { }
+            @Override
+            public void onTabReselected(TabLayout.Tab tab) { }
+        });
     }
 
     private void fetchAllProducts() {
