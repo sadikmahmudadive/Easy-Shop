@@ -1,12 +1,11 @@
 package com.example.easyshop.fragments;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.HorizontalScrollView;
 import android.widget.ImageButton;
-import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -24,7 +23,6 @@ import com.example.easyshop.adapters.ProductGridAdapter;
 import com.example.easyshop.models.Category;
 import com.example.easyshop.models.Product;
 import com.google.android.material.tabs.TabLayout;
-import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -34,24 +32,26 @@ import com.google.firebase.database.ValueEventListener;
 import java.util.ArrayList;
 import java.util.List;
 
+// Make sure your Category and Product model classes have the required fields and setters/getters for Firebase mapping.
+
 public class ShopFragment extends Fragment {
 
     private RecyclerView rvShopProducts, rvCategoryCards;
     private ProductGridAdapter productGridAdapter;
     private List<Product> productList;
     private ProgressBar progressBar;
-    private DatabaseReference productsRef;
 
     private TabLayout categoryTabLayout;
     private boolean isGrid = true;
-    private ImageButton btnLayoutSwitch;
-    private ImageButton btnFilter;
-    private ImageButton btnSort;
+    private ImageButton btnLayoutSwitch, btnFilter, btnSort, btnSearch, btnBack;
     private TextView tvSortLabel;
-    private ImageButton btnLogout;
 
-    private List<Category> categoryList;
+    private List<Category> categoryList = new ArrayList<>();
     private CategoryAdapter categoryAdapter;
+
+    private DatabaseReference categoriesRef, productsRef;
+
+    private String selectedCategory = null;
 
     @Nullable
     @Override
@@ -62,62 +62,95 @@ public class ShopFragment extends Fragment {
         progressBar = view.findViewById(R.id.progress_bar_shop);
         rvShopProducts = view.findViewById(R.id.rv_shop_products);
         rvCategoryCards = view.findViewById(R.id.rv_category_cards);
-
         categoryTabLayout = view.findViewById(R.id.category_tab_layout);
 
         btnLayoutSwitch = view.findViewById(R.id.btn_layout_switch);
         btnFilter = view.findViewById(R.id.btn_filter);
         btnSort = view.findViewById(R.id.btn_sort);
+        btnSearch = view.findViewById(R.id.btn_search);
+        btnBack = view.findViewById(R.id.btn_back);
         tvSortLabel = view.findViewById(R.id.tv_sort_label);
-        btnLogout = view.findViewById(R.id.btn_logout);
 
-        // Logout button handler
-        if (btnLogout != null) {
-            btnLogout.setOnClickListener(v -> {
-                FirebaseAuth.getInstance().signOut();
-                Toast.makeText(getContext(), getString(R.string.logout), Toast.LENGTH_SHORT).show();
-                // TODO: Navigate to login screen if needed
-            });
-        }
-
-        // Default: grid layout for products
-        rvShopProducts.setLayoutManager(new GridLayoutManager(getContext(), 2));
+        // Product grid/list
         productList = new ArrayList<>();
         productGridAdapter = new ProductGridAdapter(getContext(), productList, isGrid);
+        rvShopProducts.setLayoutManager(new GridLayoutManager(getContext(), 2));
         rvShopProducts.setAdapter(productGridAdapter);
 
-        // Setup categories
-        categoryList = Category.getDefaultCategories(); // e.g., ["New", "Clothes", "Shoes", "Accessories"]
-        categoryAdapter = new CategoryAdapter(categoryList, category -> fetchProductsByCategory(category.getName()));
+        // Category horizontal cards
+        categoryAdapter = new CategoryAdapter(categoryList, category -> {
+            selectedCategory = category.getName();
+            fetchProductsByCategory(selectedCategory);
+            selectTabByCategory(selectedCategory);
+        });
         rvCategoryCards.setLayoutManager(new LinearLayoutManager(getContext(), RecyclerView.HORIZONTAL, false));
         rvCategoryCards.setAdapter(categoryAdapter);
 
-        setupCategoryTabs();
-
+        // Firebase references
+        categoriesRef = FirebaseDatabase.getInstance().getReference("categories");
         productsRef = FirebaseDatabase.getInstance().getReference("products");
-        fetchAllProducts();
 
+        // Fetch categories and products
+        fetchCategories();
+
+        // TabLayout event
+        categoryTabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
+            @Override public void onTabSelected(TabLayout.Tab tab) {
+                selectedCategory = tab.getText().toString();
+                fetchProductsByCategory(selectedCategory);
+            }
+            @Override public void onTabUnselected(TabLayout.Tab tab) {}
+            @Override public void onTabReselected(TabLayout.Tab tab) {}
+        });
+
+        // Layout switch
         btnLayoutSwitch.setOnClickListener(v -> toggleLayout());
+
+        // Sort and filter
         btnSort.setOnClickListener(v -> showSortDialog());
         btnFilter.setOnClickListener(v -> showFilterDialog());
+
+        // Search button
+        if (btnSearch != null) {
+            btnSearch.setOnClickListener(v -> {
+                // Launch a search activity or show a search bar
+                Intent intent = new Intent(getContext(), com.example.easyshop.SearchActivity.class);
+                startActivity(intent);
+            });
+        }
+
+        // Back button
+        if (btnBack != null) {
+            btnBack.setOnClickListener(v -> requireActivity().onBackPressed());
+        }
 
         return view;
     }
 
-    private void setupCategoryTabs() {
-        categoryTabLayout.removeAllTabs();
-        for (Category cat : categoryList) {
-            categoryTabLayout.addTab(categoryTabLayout.newTab().setText(cat.getName()));
-        }
-        categoryTabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
+    private void fetchCategories() {
+        progressBar.setVisibility(View.VISIBLE);
+        categoriesRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
-            public void onTabSelected(TabLayout.Tab tab) {
-                fetchProductsByCategory(tab.getText().toString());
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                categoryList.clear();
+                categoryTabLayout.removeAllTabs();
+                categoryList.add(new Category("All", "")); // "All" category
+                categoryTabLayout.addTab(categoryTabLayout.newTab().setText("All"));
+                for (DataSnapshot catSnap : snapshot.getChildren()) {
+                    Category category = catSnap.getValue(Category.class);
+                    if (category != null) {
+                        categoryList.add(category);
+                        categoryTabLayout.addTab(categoryTabLayout.newTab().setText(category.getName()));
+                    }
+                }
+                categoryAdapter.notifyDataSetChanged();
+                fetchAllProducts();
             }
             @Override
-            public void onTabUnselected(TabLayout.Tab tab) { }
-            @Override
-            public void onTabReselected(TabLayout.Tab tab) { }
+            public void onCancelled(@NonNull DatabaseError error) {
+                Toast.makeText(getContext(), "Failed to load categories.", Toast.LENGTH_SHORT).show();
+                progressBar.setVisibility(View.GONE);
+            }
         });
     }
 
@@ -147,6 +180,10 @@ public class ShopFragment extends Fragment {
 
     private void fetchProductsByCategory(String category) {
         progressBar.setVisibility(View.VISIBLE);
+        if ("All".equals(category)) {
+            fetchAllProducts();
+            return;
+        }
         productsRef.orderByChild("category").equalTo(category)
                 .addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
@@ -170,6 +207,16 @@ public class ShopFragment extends Fragment {
                 });
     }
 
+    private void selectTabByCategory(String categoryName) {
+        for (int i = 0; i < categoryTabLayout.getTabCount(); i++) {
+            TabLayout.Tab tab = categoryTabLayout.getTabAt(i);
+            if (tab != null && tab.getText() != null && tab.getText().toString().equals(categoryName)) {
+                tab.select();
+                break;
+            }
+        }
+    }
+
     private void toggleLayout() {
         isGrid = !isGrid;
         if (isGrid) {
@@ -184,12 +231,14 @@ public class ShopFragment extends Fragment {
     }
 
     private void showSortDialog() {
-        // Show a bottom sheet or dialog with sort options
-        // On selection, update tvSortLabel and re-sort productList, then notify adapter
+        // You can use a Dialog or BottomSheetDialog here for sort options
+        // For simplicity, here is a stub
+        Toast.makeText(getContext(), "Sort dialog coming soon!", Toast.LENGTH_SHORT).show();
     }
 
     private void showFilterDialog() {
-        // Show a filter bottom sheet
-        // On apply, filter productList and notify adapter
+        // You can use a Dialog or BottomSheetDialog here for filter options
+        // For simplicity, here is a stub
+        Toast.makeText(getContext(), "Filter dialog coming soon!", Toast.LENGTH_SHORT).show();
     }
 }

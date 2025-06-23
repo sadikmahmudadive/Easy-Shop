@@ -6,6 +6,7 @@
     <string name="product_image">Product Image</string>
     <string name="avatar">User Avatar</string>
     <string name="add_your_photos">Add your photos</string>
+    <string name="category_image">Category Image</string>
 
     <!-- Button and Action Labels -->
     <string name="add_to_bag">Add to Bag</string>
@@ -78,4 +79,9 @@
     <string name="nav_bag">Bag</string>
     <string name="nav_favorites">Favorites</string>
     <string name="nav_profile">Profile</string>
+
+    <!-- Search -->
+    <string name="no_results_found">No results found.</string>
+    <string name="clear">Clear</string>
+    <string name="visual_search">Visual Search</string>
 </resources>
