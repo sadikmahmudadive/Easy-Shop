@@ -25,6 +25,11 @@ public class Product implements Serializable {
     private String title;
     private String discountText;  // For "discountText" field (used in some sections)
 
+    // New fields for cart/bag support
+    private String color;
+    private List<String> availableSizes;
+    private String size;
+
     public Product() {}
 
     public String getProductId() { return productId; }
@@ -88,6 +93,16 @@ public class Product implements Serializable {
     public String getDiscountText() { return discountText; }
     public void setDiscountText(String discountText) { this.discountText = discountText; }
 
+    // New for bag/cart
+    public String getColor() { return color != null ? color : ""; }
+    public void setColor(String color) { this.color = color; }
+
+    public List<String> getAvailableSizes() { return availableSizes; }
+    public void setAvailableSizes(List<String> availableSizes) { this.availableSizes = availableSizes; }
+
+    public String getSize() { return size; }
+    public void setSize(String size) { this.size = size; }
+
     // --- Debug helper ---
     public void logDebug(String tag) {
         Log.d(tag, "ProductId: " + productId
@@ -105,7 +120,10 @@ public class Product implements Serializable {
                 + " | SelectedSize: " + selectedSize
                 + " | Title: " + title
                 + " | DiscountText: " + discountText
-                + " | ImageUrl: " + imageUrl);
+                + " | ImageUrl: " + imageUrl
+                + " | Color: " + color
+                + " | Size: " + size
+                + " | AvailableSizes: " + (availableSizes != null ? availableSizes.toString() : "null"));
         if (imageUrls != null) {
             Log.d(tag, "ImageUrls size: " + imageUrls.size());
         }

@@ -1,179 +1,221 @@
 package com.example.easyshop.fragments;
 
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.EditText;
+import android.widget.ImageButton;
+import android.widget.ImageView;
+import android.widget.PopupMenu;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.constraintlayout.widget.Group;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.bumptech.glide.Glide;
 import com.example.easyshop.R;
-import com.example.easyshop.adapters.CartAdapter;
-import com.example.easyshop.models.CartItem;
-import com.example.easyshop.models.Order;
+import com.example.easyshop.models.BagProduct;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.database.*;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
 
-public class BagFragment extends Fragment implements CartAdapter.CartItemListener {
+public class BagFragment extends Fragment {
 
-    private static final String TAG = "BagFragment";
-
-    private RecyclerView rvCartItems;
-    private CartAdapter cartAdapter;
-    private List<CartItem> cartItems;
-    private TextView tvTotalPrice, tvEmptyBag;
+    private RecyclerView recyclerView;
+    private BagAdapter bagAdapter;
+    private TextView tvTotalAmount;
+    private EditText etPromoCode;
     private Button btnCheckout;
-    private Group groupCartContent;
+    private ImageButton btnApplyPromo;
 
+    private List<BagProduct> bagProducts = new ArrayList<>();
+    private int totalAmount = 0;
+
+    // Firebase
     private DatabaseReference cartRef;
-    private DatabaseReference ordersRef;
-    private FirebaseUser currentUser;
+    private ValueEventListener cartListener;
 
-    @Nullable
     @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_bag, container, false);
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        View root = inflater.inflate(R.layout.fragment_bag, container, false);
 
-        rvCartItems = view.findViewById(R.id.rv_cart_items);
-        tvTotalPrice = view.findViewById(R.id.tv_total_price);
-        btnCheckout = view.findViewById(R.id.btn_checkout);
-        tvEmptyBag = view.findViewById(R.id.tv_empty_bag);
-        groupCartContent = view.findViewById(R.id.group_cart_content);
+        recyclerView = root.findViewById(R.id.recycler_bag);
+        tvTotalAmount = root.findViewById(R.id.tv_total_amount);
+        etPromoCode = root.findViewById(R.id.et_promo_code);
+        btnApplyPromo = root.findViewById(R.id.btn_apply_promo);
+        btnCheckout = root.findViewById(R.id.btn_checkout);
 
-        rvCartItems.setLayoutManager(new LinearLayoutManager(getContext()));
-        cartItems = new ArrayList<>();
-        cartAdapter = new CartAdapter(getContext(), cartItems, this);
-        rvCartItems.setAdapter(cartAdapter);
+        bagAdapter = new BagAdapter(bagProducts, new BagAdapter.OnBagActionListener() {
+            @Override
+            public void onQuantityChanged(int position, int newQuantity) {
+                BagProduct p = bagProducts.get(position);
+                String userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
+                String cartItemId = p.getProductId() + "_" + p.getSize();
+                DatabaseReference itemRef = FirebaseDatabase.getInstance().getReference("cart")
+                        .child(userId).child(cartItemId);
+                p.setQuantity(newQuantity);
+                itemRef.setValue(p);
+                recalculateTotal();
+            }
 
-        currentUser = FirebaseAuth.getInstance().getCurrentUser();
-        if (currentUser != null) {
-            cartRef = FirebaseDatabase.getInstance().getReference("carts").child(currentUser.getUid());
-            ordersRef = FirebaseDatabase.getInstance().getReference("orders").child(currentUser.getUid());
-            fetchCartItems();
-        }
+            @Override
+            public void onRemove(int position) {
+                BagProduct p = bagProducts.get(position);
+                String userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
+                String cartItemId = p.getProductId() + "_" + p.getSize();
+                DatabaseReference itemRef = FirebaseDatabase.getInstance().getReference("cart")
+                        .child(userId).child(cartItemId);
+                itemRef.removeValue();
+            }
+        });
 
-        btnCheckout.setOnClickListener(v -> placeOrder());
+        recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+        recyclerView.setAdapter(bagAdapter);
 
-        return view;
-    }
+        // Listen to cart changes in Firebase for this user
+        String userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
+        cartRef = FirebaseDatabase.getInstance().getReference("cart").child(userId);
 
-    private void fetchCartItems() {
-        cartRef.addValueEventListener(new ValueEventListener() {
+        cartListener = new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
-                cartItems.clear();
-                for (DataSnapshot itemSnapshot : snapshot.getChildren()) {
-                    CartItem item = itemSnapshot.getValue(CartItem.class);
-                    if (item != null) {
-                        cartItems.add(item);
-                    }
+                bagProducts.clear();
+                for (DataSnapshot snap : snapshot.getChildren()) {
+                    BagProduct p = snap.getValue(BagProduct.class);
+                    if (p != null) bagProducts.add(p);
                 }
-                updateUI();
+                bagAdapter.notifyDataSetChanged();
+                recalculateTotal();
             }
 
             @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-                Log.e(TAG, "Failed to fetch cart items.", error.toException());
-            }
+            public void onCancelled(@NonNull DatabaseError error) {}
+        };
+        cartRef.addValueEventListener(cartListener);
+
+        btnApplyPromo.setOnClickListener(v -> {
+            Toast.makeText(getContext(), "Promo code applied: " + etPromoCode.getText().toString(), Toast.LENGTH_SHORT).show();
         });
+
+        btnCheckout.setOnClickListener(v -> {
+            Toast.makeText(getContext(), "Proceed to checkout!", Toast.LENGTH_SHORT).show();
+        });
+
+        return root;
     }
 
-    private void updateUI() {
-        cartAdapter.notifyDataSetChanged();
-        updateTotalPrice();
-        if (cartItems.isEmpty()) {
-            groupCartContent.setVisibility(View.GONE);
-            tvEmptyBag.setVisibility(View.VISIBLE);
-        } else {
-            groupCartContent.setVisibility(View.VISIBLE);
-            tvEmptyBag.setVisibility(View.GONE);
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        if (cartRef != null && cartListener != null) {
+            cartRef.removeEventListener(cartListener);
         }
     }
 
-    private void updateTotalPrice() {
-        double total = 0;
-        for (CartItem item : cartItems) {
-            try {
-                double price = Double.parseDouble(item.getProduct().getPrice().replace("$", ""));
-                total += price * item.getQuantity();
-            } catch (NumberFormatException e) {
-                Log.e(TAG, "Price format error", e);
-            }
-        }
-        tvTotalPrice.setText(String.format(Locale.US, "%.2f$", total));
+    private void recalculateTotal() {
+        int sum = 0;
+        for (BagProduct p : bagProducts)
+            sum += p.getPrice() * p.getQuantity();
+        totalAmount = sum;
+        tvTotalAmount.setText(totalAmount + "$");
     }
 
-    private void placeOrder() {
-        if (cartItems.isEmpty()) {
-            Toast.makeText(getContext(), "Your bag is empty.", Toast.LENGTH_SHORT).show();
-            return;
+    public static class BagAdapter extends RecyclerView.Adapter<BagAdapter.BagViewHolder> {
+        public interface OnBagActionListener {
+            void onQuantityChanged(int position, int newQuantity);
+            void onRemove(int position);
         }
 
-        String orderId = ordersRef.push().getKey();
-        if (orderId == null) {
-            Toast.makeText(getContext(), "Could not create order.", Toast.LENGTH_SHORT).show();
-            return;
+        private final List<BagProduct> products;
+        private final OnBagActionListener listener;
+
+        public BagAdapter(List<BagProduct> products, OnBagActionListener listener) {
+            this.products = products;
+            this.listener = listener;
         }
 
-        double total = 0;
-        for (CartItem item : cartItems) {
-            try {
-                double price = Double.parseDouble(item.getProduct().getPrice().replace("$", ""));
-                total += price * item.getQuantity();
-            } catch (NumberFormatException e) {
-                // ignore
-            }
+        @NonNull
+        @Override
+        public BagViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+            View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_bag_product, parent, false);
+            return new BagViewHolder(v);
         }
 
-        Order order = new Order();
-        order.setOrderId(orderId);
-        order.setOrderDate(System.currentTimeMillis());
-        order.setItems(new ArrayList<>(cartItems));
-        order.setTotalPrice(total);
+        @Override
+        public void onBindViewHolder(@NonNull BagViewHolder holder, int position) {
+            BagProduct p = products.get(position);
+            holder.tvName.setText(p.getName());
+            holder.tvColor.setText("Color: " + p.getColor());
+            holder.tvSize.setText("Size: " + p.getSize());
+            holder.tvQuantity.setText(String.valueOf(p.getQuantity()));
+            holder.tvPrice.setText(p.getPrice() + "$");
 
-        ordersRef.child(orderId).setValue(order).addOnCompleteListener(task -> {
-            if (task.isSuccessful()) {
-                // Clear the cart
-                cartRef.removeValue().addOnCompleteListener(clearTask -> {
-                    if (clearTask.isSuccessful()) {
-                        Toast.makeText(getContext(), "Order placed successfully!", Toast.LENGTH_SHORT).show();
+            Glide.with(holder.imgProduct.getContext())
+                    .load(p.getImageUrl())
+                    .placeholder(R.drawable.placeholder_image)
+                    .into(holder.imgProduct);
+
+            holder.btnDecrease.setOnClickListener(v -> {
+                if (p.getQuantity() > 1) {
+                    int newQty = p.getQuantity() - 1;
+                    holder.tvQuantity.setText(String.valueOf(newQty));
+                    if (listener != null) listener.onQuantityChanged(position, newQty);
+                }
+            });
+
+            holder.btnIncrease.setOnClickListener(v -> {
+                int newQty = p.getQuantity() + 1;
+                holder.tvQuantity.setText(String.valueOf(newQty));
+                if (listener != null) listener.onQuantityChanged(position, newQty);
+            });
+
+            holder.btnMore.setOnClickListener(v -> {
+                PopupMenu popup = new PopupMenu(holder.btnMore.getContext(), holder.btnMore);
+                MenuInflater inflater = popup.getMenuInflater();
+                inflater.inflate(R.menu.menu_bag_item, popup.getMenu());
+                popup.setOnMenuItemClickListener(item -> {
+                    if (item.getItemId() == R.id.menu_add_to_favorites) {
+                        Toast.makeText(holder.btnMore.getContext(), "Added to favorites", Toast.LENGTH_SHORT).show();
+                        return true;
+                    } else if (item.getItemId() == R.id.menu_delete_from_list) {
+                        if (listener != null) listener.onRemove(holder.getAdapterPosition());
+                        return true;
                     }
+                    return false;
                 });
-            } else {
-                Toast.makeText(getContext(), "Failed to place order.", Toast.LENGTH_SHORT).show();
-            }
-        });
-    }
-
-    @Override
-    public void onQuantityChanged() {
-        updateTotalPrice();
-        // Persist changes back to Firebase
-        for (CartItem item : cartItems) {
-            cartRef.child(item.getProduct().getProductId()).setValue(item);
+                popup.show();
+            });
         }
-    }
 
-    @Override
-    public void onItemRemoved(String productId) {
-        cartRef.child(productId).removeValue();
+        @Override
+        public int getItemCount() {
+            return products.size();
+        }
+
+        public static class BagViewHolder extends RecyclerView.ViewHolder {
+            ImageView imgProduct;
+            TextView tvName, tvColor, tvSize, tvQuantity, tvPrice;
+            ImageButton btnDecrease, btnIncrease, btnMore;
+            public BagViewHolder(@NonNull View itemView) {
+                super(itemView);
+                imgProduct = itemView.findViewById(R.id.img_product);
+                tvName = itemView.findViewById(R.id.tv_product_name);
+                tvColor = itemView.findViewById(R.id.tv_product_color);
+                tvSize = itemView.findViewById(R.id.tv_product_size);
+                tvQuantity = itemView.findViewById(R.id.tv_quantity);
+                tvPrice = itemView.findViewById(R.id.tv_product_price);
+                btnDecrease = itemView.findViewById(R.id.btn_decrease);
+                btnIncrease = itemView.findViewById(R.id.btn_increase);
+                btnMore = itemView.findViewById(R.id.btn_more);
+            }
+        }
     }
 }

@@ -15,6 +15,7 @@ import com.bumptech.glide.Glide;
 import com.example.easyshop.adapters.ReviewsAdapter;
 import com.example.easyshop.adapters.SimilarProductsAdapter;
 import com.example.easyshop.dialogs.WriteReviewDialog;
+import com.example.easyshop.models.BagProduct;
 import com.example.easyshop.models.Product;
 import com.example.easyshop.models.Review;
 import com.example.easyshop.ui.SelectSizeBottomSheet;
@@ -51,6 +52,9 @@ public class ProductDetailsActivity extends AppCompatActivity implements WriteRe
     private CheckBox checkboxWithPhoto;
     private ValueEventListener productListener;
     private String lastSimilarCategory;
+
+    // Track selected size for cart (if needed)
+    private String selectedSize = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -99,7 +103,22 @@ public class ProductDetailsActivity extends AppCompatActivity implements WriteRe
             finish();
         }
 
-        addToCartButton.setOnClickListener(v -> addToCart());
+        addToCartButton.setOnClickListener(v -> {
+            if (currentProduct == null) return;
+
+            // If your product has sizes, let user select before adding
+            if (currentProduct.getAvailableSizes() != null && !currentProduct.getAvailableSizes().isEmpty()) {
+                SelectSizeBottomSheet sizeSheet = SelectSizeBottomSheet.newInstance(currentProduct);
+                sizeSheet.setOnSizeSelectedListener(size -> {
+                    selectedSize = size;
+                    addToCart(currentProduct, selectedSize);
+                });
+                sizeSheet.show(getSupportFragmentManager(), "SelectSizeBottomSheetCart");
+            } else {
+                addToCart(currentProduct, null);
+            }
+        });
+
         if (favoriteButton != null) {
             favoriteButton.setOnClickListener(v -> {
                 if (currentProduct == null) return;
@@ -246,8 +265,43 @@ public class ProductDetailsActivity extends AppCompatActivity implements WriteRe
         });
     }
 
-    private void addToCart() {
-        Toast.makeText(this, "Added to cart!", Toast.LENGTH_SHORT).show();
+    /**
+     * Add the product to user's cart in Firebase with selected size (and default qty 1).
+     * Uses productId + "_" + size as cart item key, and sets productId in BagProduct.
+     */
+    private void addToCart(Product product, String size) {
+        String userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
+        String productId = product.getProductId();
+        String cartItemId = productId + "_" + (size != null ? size : product.getSize());
+
+        int price = 0;
+        try {
+            price = (int) Math.round(Double.parseDouble(product.getPrice()));
+        } catch (Exception e) {
+            // handle parse error if needed
+        }
+
+        BagProduct bagProduct = new BagProduct(
+                productId,
+                product.getName(),
+                product.getColor(),
+                size != null ? size : product.getSize(),
+                1,
+                price,
+                product.getImageUrl()
+        );
+
+        FirebaseDatabase.getInstance()
+                .getReference("cart")
+                .child(userId)
+                .child(cartItemId)
+                .setValue(bagProduct)
+                .addOnSuccessListener(unused ->
+                        Toast.makeText(ProductDetailsActivity.this, "Added to cart!", Toast.LENGTH_SHORT).show()
+                )
+                .addOnFailureListener(e ->
+                        Toast.makeText(ProductDetailsActivity.this, "Failed to add to cart", Toast.LENGTH_SHORT).show()
+                );
     }
 
     private void addToFavourites(Product product) {
