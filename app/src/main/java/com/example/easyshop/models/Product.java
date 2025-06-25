@@ -1,44 +1,32 @@
 package com.example.easyshop.models;
 
+import android.util.Log;
+import java.io.Serializable;
 import java.util.List;
 
-public class Product {
+public class Product implements Serializable {
     private String productId;
     private String name;
     private String brand;
     private String category;
+    private String description;
     private String imageUrl;
     private List<String> imageUrls;
-    private String description;
-    private String price;
+    private int imageResId;
+    private boolean isFavorite;   // For "isFavorite" field in JSON
+    private boolean favorite;     // For "favorite" field in JSON
+    private boolean isNew;        // For "new" field in JSON
     private String oldPrice;
-    private boolean isFavorite;
-
-    // Average rating and review count for main rating
-    private Float avgRating;
+    private String price;
+    private float rating;
+    private Double avgRating;
     private Integer reviewCount;
+    private String selectedSize;
+    private String title;
+    private String discountText;  // For "discountText" field (used in some sections)
 
-    // Default constructor required for calls to DataSnapshot.getValue(Product.class)
     public Product() {}
 
-    // Full constructor for convenience (optional)
-    public Product(String productId, String name, String brand, String category, String imageUrl, List<String> imageUrls,
-                   String description, String price, String oldPrice, boolean isFavorite, Float avgRating, Integer reviewCount) {
-        this.productId = productId;
-        this.name = name;
-        this.brand = brand;
-        this.category = category;
-        this.imageUrl = imageUrl;
-        this.imageUrls = imageUrls;
-        this.description = description;
-        this.price = price;
-        this.oldPrice = oldPrice;
-        this.isFavorite = isFavorite;
-        this.avgRating = avgRating;
-        this.reviewCount = reviewCount;
-    }
-
-    // Getters and Setters
     public String getProductId() { return productId; }
     public void setProductId(String productId) { this.productId = productId; }
 
@@ -51,27 +39,75 @@ public class Product {
     public String getCategory() { return category != null ? category : ""; }
     public void setCategory(String category) { this.category = category; }
 
+    public String getDescription() { return description != null ? description : ""; }
+    public void setDescription(String description) { this.description = description; }
+
     public String getImageUrl() { return imageUrl; }
     public void setImageUrl(String imageUrl) { this.imageUrl = imageUrl; }
 
     public List<String> getImageUrls() { return imageUrls; }
     public void setImageUrls(List<String> imageUrls) { this.imageUrls = imageUrls; }
 
-    public String getDescription() { return description != null ? description : ""; }
-    public void setDescription(String description) { this.description = description; }
+    public int getImageResId() { return imageResId; }
+    public void setImageResId(int imageResId) { this.imageResId = imageResId; }
 
-    public String getPrice() { return price; }
-    public void setPrice(String price) { this.price = price; }
+    // For "isFavorite"
+    public boolean getIsFavorite() { return isFavorite; }
+    public void setIsFavorite(boolean isFavorite) { this.isFavorite = isFavorite; }
+
+    // For "favorite"
+    public boolean getFavorite() { return favorite; }
+    public void setFavorite(boolean favorite) { this.favorite = favorite; }
+
+    // For "new"
+    public boolean isNew() { return isNew; }
+    public void setNew(boolean isNew) { this.isNew = isNew; }
 
     public String getOldPrice() { return oldPrice; }
     public void setOldPrice(String oldPrice) { this.oldPrice = oldPrice; }
 
-    public boolean isFavorite() { return isFavorite; }
-    public void setFavorite(boolean favorite) { isFavorite = favorite; }
+    public String getPrice() { return price; }
+    public void setPrice(String price) { this.price = price; }
 
-    public Float getAvgRating() { return avgRating != null ? avgRating : 0f; }
-    public void setAvgRating(Float avgRating) { this.avgRating = avgRating; }
+    public float getRating() { return rating; }
+    public void setRating(float rating) { this.rating = rating; }
 
-    public Integer getReviewCount() { return reviewCount != null ? reviewCount : 0; }
+    // For "avgRating" (nullable Double for null-checks)
+    public Double getAvgRating() { return avgRating; }
+    public void setAvgRating(Double avgRating) { this.avgRating = avgRating; }
+
+    public Integer getReviewCount() { return reviewCount; }
     public void setReviewCount(Integer reviewCount) { this.reviewCount = reviewCount; }
+
+    public String getSelectedSize() { return selectedSize; }
+    public void setSelectedSize(String selectedSize) { this.selectedSize = selectedSize; }
+
+    public String getTitle() { return title != null ? title : getName(); }
+    public void setTitle(String title) { this.title = title; }
+
+    public String getDiscountText() { return discountText; }
+    public void setDiscountText(String discountText) { this.discountText = discountText; }
+
+    // --- Debug helper ---
+    public void logDebug(String tag) {
+        Log.d(tag, "ProductId: " + productId
+                + " | Name: " + name
+                + " | Brand: " + brand
+                + " | Category: " + category
+                + " | isFavorite: " + isFavorite
+                + " | favorite: " + favorite
+                + " | isNew: " + isNew
+                + " | Price: " + price
+                + " | OldPrice: " + oldPrice
+                + " | Rating: " + rating
+                + " | AvgRating: " + avgRating
+                + " | ReviewCount: " + reviewCount
+                + " | SelectedSize: " + selectedSize
+                + " | Title: " + title
+                + " | DiscountText: " + discountText
+                + " | ImageUrl: " + imageUrl);
+        if (imageUrls != null) {
+            Log.d(tag, "ImageUrls size: " + imageUrls.size());
+        }
+    }
 }

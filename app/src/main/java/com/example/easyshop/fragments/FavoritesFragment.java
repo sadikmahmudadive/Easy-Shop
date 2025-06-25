@@ -6,7 +6,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -18,139 +17,93 @@ import com.example.easyshop.R;
 import com.example.easyshop.adapters.FavoriteAdapter;
 import com.example.easyshop.models.Product;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.database.*;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class FavoritesFragment extends Fragment {
 
-    private static final String TAG = "FavoritesFragment";
+    private RecyclerView recyclerView;
+    private FavoriteAdapter adapter;
+    private List<Product> favouriteProducts = new ArrayList<>();
+    private TextView emptyView;
 
-    private RecyclerView rvFavorites;
-    private FavoriteAdapter favoriteAdapter;
-    private List<Product> favoriteProductList;
-    private TextView tvNoFavorites;
-    private DatabaseReference favoritesRef;
-    private DatabaseReference productsRef;
-    private ValueEventListener favoritesListener;
-
-    @Nullable
     @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_favorites, container, false);
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        View root = inflater.inflate(R.layout.fragment_favorites, container, false);
 
-        // Initialize UI
-        rvFavorites = view.findViewById(R.id.rv_favorite_items);
-        tvNoFavorites = view.findViewById(R.id.tv_no_favorites);
-        rvFavorites.setLayoutManager(new LinearLayoutManager(getContext()));
-        favoriteProductList = new ArrayList<>();
-        favoriteAdapter = new FavoriteAdapter(getContext(), favoriteProductList);
-        rvFavorites.setAdapter(favoriteAdapter);
+        recyclerView = root.findViewById(R.id.recycler_favourites);
+        emptyView = root.findViewById(R.id.empty_favourites);
 
-        // Initialize Firebase
-        FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
-        if (currentUser != null) {
-            String userId = currentUser.getUid();
-            favoritesRef = FirebaseDatabase.getInstance().getReference("favorites").child(userId);
-            productsRef = FirebaseDatabase.getInstance().getReference("products");
-            attachFavoritesListener();
-        } else {
-            // Handle user not logged in case
-            Toast.makeText(getContext(), "Please log in to see favorites", Toast.LENGTH_SHORT).show();
-            updateUI();
-        }
+        adapter = new FavoriteAdapter(favouriteProducts, product -> removeFromFavourites(product));
+        recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+        recyclerView.setAdapter(adapter);
 
-        return view;
+        loadFavourites();
+
+        return root;
     }
 
-    /**
-     * Attaches a listener to the user's favorites node to get a list of product IDs.
-     * This listener will react to any additions or removals.
-     */
-    private void attachFavoritesListener() {
-        if (favoritesRef == null) return;
-        favoritesListener = new ValueEventListener() {
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+
+        if (FirebaseAuth.getInstance().getCurrentUser() == null) {
+            // User not logged in
+        } else {
+            loadFavourites();
+        }
+    }
+
+    private void loadFavourites() {
+        String userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
+        DatabaseReference ref = FirebaseDatabase.getInstance()
+                .getReference("favourites")
+                .child(userId);
+        Log.d("FAV_FRAGMENT_DEBUG", "Loading favourites for user: " + userId);
+
+        ref.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
-                List<String> favoriteIds = new ArrayList<>();
-                for (DataSnapshot idSnapshot : snapshot.getChildren()) {
-                    favoriteIds.add(idSnapshot.getKey());
+                favouriteProducts.clear();
+                int count = 0;
+                for (DataSnapshot productSnap : snapshot.getChildren()) {
+                    Product p = productSnap.getValue(Product.class);
+                    if (p != null) {
+                        favouriteProducts.add(p);
+                        Log.d("FAV_FRAGMENT_DEBUG", "Loaded: " + p.getProductId() + " | " + p.getName());
+                        count++;
+                    } else {
+                        Log.w("FAV_FRAGMENT_DEBUG", "Null product encountered");
+                    }
                 }
-                fetchFavoriteProducts(favoriteIds);
+                Log.d("FAV_FRAGMENT_DEBUG", "Total loaded: " + count);
+                adapter.notifyDataSetChanged();
+                if (count == 0) {
+                    emptyView.setVisibility(View.VISIBLE);
+                    recyclerView.setVisibility(View.GONE);
+                } else {
+                    emptyView.setVisibility(View.GONE);
+                    recyclerView.setVisibility(View.VISIBLE);
+                }
             }
 
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
-                Log.e(TAG, "Error fetching favorite IDs: " + error.getMessage());
-                Toast.makeText(getContext(), "Could not load favorites.", Toast.LENGTH_SHORT).show();
+                Log.e("FAV_FRAGMENT_DEBUG", "Failed to load favourites: " + error.getMessage());
             }
-        };
-        favoritesRef.addValueEventListener(favoritesListener);
+        });
     }
 
-    /**
-     * Given a list of product IDs, this method fetches the full product details
-     * for each one from the 'products' node in Firebase.
-     */
-    private void fetchFavoriteProducts(List<String> favoriteIds) {
-        favoriteProductList.clear(); // Clear the list before repopulating
-        if (favoriteIds.isEmpty()) {
-            updateUI(); // Update UI to show "no favorites" message
-            return;
-        }
-
-        for (String id : favoriteIds) {
-            if (id == null || productsRef == null) continue;
-            productsRef.child(id).addListenerForSingleValueEvent(new ValueEventListener() {
-                @Override
-                public void onDataChange(@NonNull DataSnapshot snapshot) {
-                    Product product = snapshot.getValue(Product.class);
-                    if (product != null) {
-                        product.setProductId(snapshot.getKey());
-                        favoriteProductList.add(product);
-                    }
-                    // This ensures the UI is updated after all items have been processed
-                    if (favoriteProductList.size() == favoriteIds.size()) {
-                        updateUI();
-                    }
-                }
-
-                @Override
-                public void onCancelled(@NonNull DatabaseError error) {
-                    Log.e(TAG, "Error fetching product details for ID " + id + ": " + error.getMessage());
-                }
-            });
-        }
-    }
-
-    /**
-     * Updates the visibility of the RecyclerView and the "no favorites" text view
-     * based on whether the favorites list is empty.
-     */
-    private void updateUI() {
-        favoriteAdapter.notifyDataSetChanged();
-        if (favoriteProductList.isEmpty()) {
-            rvFavorites.setVisibility(View.GONE);
-            tvNoFavorites.setVisibility(View.VISIBLE);
-        } else {
-            rvFavorites.setVisibility(View.VISIBLE);
-            tvNoFavorites.setVisibility(View.GONE);
-        }
-    }
-
-    @Override
-    public void onDestroyView() {
-        super.onDestroyView();
-        // Crucial: Detach the Firebase listener to prevent memory leaks and unwanted background activity
-        // when the fragment's view is destroyed.
-        if (favoritesRef != null && favoritesListener != null) {
-            favoritesRef.removeEventListener(favoritesListener);
-        }
+    private void removeFromFavourites(Product product) {
+        String userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
+        DatabaseReference ref = FirebaseDatabase.getInstance()
+                .getReference("favourites")
+                .child(userId)
+                .child(product.getProductId());
+        ref.removeValue()
+                .addOnSuccessListener(aVoid -> Log.d("FAV_FRAGMENT_DEBUG", "Removed: " + product.getProductId()))
+                .addOnFailureListener(e -> Log.e("FAV_FRAGMENT_DEBUG", "Failed to remove: " + product.getProductId()));
     }
 }

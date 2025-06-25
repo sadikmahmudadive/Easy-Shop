@@ -17,7 +17,9 @@ import com.example.easyshop.adapters.SimilarProductsAdapter;
 import com.example.easyshop.dialogs.WriteReviewDialog;
 import com.example.easyshop.models.Product;
 import com.example.easyshop.models.Review;
+import com.example.easyshop.ui.SelectSizeBottomSheet;
 import com.google.android.material.button.MaterialButton;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.*;
 
 import android.view.LayoutInflater;
@@ -50,7 +52,6 @@ public class ProductDetailsActivity extends AppCompatActivity implements WriteRe
     private ValueEventListener productListener;
     private String lastSimilarCategory;
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -75,7 +76,7 @@ public class ProductDetailsActivity extends AppCompatActivity implements WriteRe
 
         productOldPrice.setPaintFlags(productOldPrice.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
 
-        similarProductsAdapter = new SimilarProductsAdapter(similarProductsList);
+        similarProductsAdapter = new SimilarProductsAdapter(similarProductsList, product -> openProductDetails(product));
         similarProductsRecycler.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
         similarProductsRecycler.setAdapter(similarProductsAdapter);
 
@@ -83,22 +84,13 @@ public class ProductDetailsActivity extends AppCompatActivity implements WriteRe
         reviewsRecycler.setLayoutManager(new LinearLayoutManager(this));
         reviewsRecycler.setAdapter(reviewsAdapter);
 
-        similarProductsAdapter.setOnItemClickListener(product -> {
-            if (product != null && product.getProductId() != null) {
-                if (currentProduct != null && product.getProductId().equals(currentProduct.getProductId())) {
-                    return;
-                }
-                Intent intent = new Intent(ProductDetailsActivity.this, ProductDetailsActivity.class);
-                intent.putExtra("product_id", product.getProductId());
-                startActivity(intent);
-            }
-        });
-
         FirebaseDatabase database = FirebaseDatabase.getInstance("https://easyshop-24640-default-rtdb.firebaseio.com/");
         productsRef = database.getReference("products");
         reviewsRef = database.getReference("reviews");
 
+        // Support both "product_id" and "productId" for intent extra key
         String productId = getIntent().getStringExtra("product_id");
+        if (productId == null) productId = getIntent().getStringExtra("productId");
         if (productId != null && !productId.isEmpty()) {
             fetchProduct(productId);
             fetchReviews(productId);
@@ -109,7 +101,15 @@ public class ProductDetailsActivity extends AppCompatActivity implements WriteRe
 
         addToCartButton.setOnClickListener(v -> addToCart());
         if (favoriteButton != null) {
-            favoriteButton.setOnClickListener(v -> toggleFavorite());
+            favoriteButton.setOnClickListener(v -> {
+                if (currentProduct == null) return;
+                SelectSizeBottomSheet sheet = SelectSizeBottomSheet.newInstance(currentProduct);
+                sheet.setOnSizeSelectedListener(selectedSize -> {
+                    currentProduct.setSelectedSize(selectedSize);
+                    addToFavourites(currentProduct);
+                });
+                sheet.show(getSupportFragmentManager(), "SelectSizeBottomSheet");
+            });
         }
 
         if (writeReviewButton != null) {
@@ -123,6 +123,18 @@ public class ProductDetailsActivity extends AppCompatActivity implements WriteRe
             checkboxWithPhoto.setOnCheckedChangeListener((buttonView, isChecked) -> {
                 reviewsAdapter.filterWithPhotos(isChecked);
             });
+        }
+    }
+
+    // Make product click open new ProductDetailsActivity
+    private void openProductDetails(Product product) {
+        if (product != null && product.getProductId() != null) {
+            if (currentProduct != null && product.getProductId().equals(currentProduct.getProductId())) {
+                return; // Don't open if it's the same product
+            }
+            Intent intent = new Intent(ProductDetailsActivity.this, ProductDetailsActivity.class);
+            intent.putExtra("product_id", product.getProductId());
+            startActivity(intent);
         }
     }
 
@@ -150,7 +162,7 @@ public class ProductDetailsActivity extends AppCompatActivity implements WriteRe
                 Toast.makeText(ProductDetailsActivity.this, "Failed to fetch product", Toast.LENGTH_SHORT).show();
             }
         };
-        productRef.addValueEventListener(productListener); // Listen for ALL changes!
+        productRef.addValueEventListener(productListener);
     }
 
     @Override
@@ -184,10 +196,10 @@ public class ProductDetailsActivity extends AppCompatActivity implements WriteRe
             imageCarousel.setAdapter(new ImageCarouselAdapter(fallbackList));
         }
         if (favoriteButton != null) {
-            favoriteButton.setIconResource(product.isFavorite() ? R.drawable.ic_favorite_filled : R.drawable.ic_favorite_border);
+            favoriteButton.setIconResource(product.getIsFavorite() ? R.drawable.ic_favorite_filled : R.drawable.ic_favorite_border);
         }
 
-        // --- Similar products fix ---
+        // --- Similar products ---
         if (product.getCategory() != null && !product.getCategory().equals(lastSimilarCategory)) {
             lastSimilarCategory = product.getCategory();
             fetchSimilarProducts(product.getCategory());
@@ -238,15 +250,19 @@ public class ProductDetailsActivity extends AppCompatActivity implements WriteRe
         Toast.makeText(this, "Added to cart!", Toast.LENGTH_SHORT).show();
     }
 
-    private void toggleFavorite() {
-        if (currentProduct != null) {
-            boolean newState = !currentProduct.isFavorite();
-            currentProduct.setFavorite(newState);
-            productsRef.child(currentProduct.getProductId()).child("isFavorite").setValue(newState);
-            if (favoriteButton != null) {
-                favoriteButton.setIconResource(newState ? R.drawable.ic_favorite_filled : R.drawable.ic_favorite_border);
-            }
-        }
+    private void addToFavourites(Product product) {
+        String userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
+        FirebaseDatabase.getInstance()
+                .getReference("favourites")
+                .child(userId)
+                .child(product.getProductId())
+                .setValue(product)
+                .addOnSuccessListener(unused ->
+                        Toast.makeText(ProductDetailsActivity.this, "Added to favourites", Toast.LENGTH_SHORT).show()
+                )
+                .addOnFailureListener(e ->
+                        Toast.makeText(ProductDetailsActivity.this, "Failed to add to favourites", Toast.LENGTH_SHORT).show()
+                );
     }
 
     private String nonNull(String s) {
@@ -299,7 +315,7 @@ public class ProductDetailsActivity extends AppCompatActivity implements WriteRe
             reviewsRef.child(productId).child(reviewId).setValue(review)
                     .addOnSuccessListener(aVoid -> {
                         Toast.makeText(this, "Review added", Toast.LENGTH_SHORT).show();
-                        updateProductAvgRating(productId); // update avg rating
+                        updateProductAvgRating(productId);
                     })
                     .addOnFailureListener(e -> Toast.makeText(this, "Failed to add review", Toast.LENGTH_SHORT).show());
         }

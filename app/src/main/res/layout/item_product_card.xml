@@ -1,0 +1,168 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="150dp"
+    android:layout_height="220dp"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_marginEnd="14dp"
+    android:layout_marginBottom="8dp"
+    app:cardCornerRadius="16dp"
+    app:cardElevation="4dp">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <!-- Discount badge -->
+        <TextView
+            android:id="@+id/tv_discount"
+            android:layout_width="42dp"
+            android:layout_height="28dp"
+            android:text="-20%"
+            android:textColor="@android:color/white"
+            android:textSize="14sp"
+            android:textStyle="bold"
+            android:gravity="center"
+            android:background="@drawable/bg_discount_badge"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentTop="true"
+            android:layout_marginTop="10dp"
+            android:layout_marginStart="10dp"/>
+
+        <!-- NEW badge (optional, set visibility as needed) -->
+        <TextView
+            android:id="@+id/tv_new_badge"
+            android:layout_width="42dp"
+            android:layout_height="28dp"
+            android:text="NEW"
+            android:textColor="@android:color/white"
+            android:textSize="14sp"
+            android:textStyle="bold"
+            android:gravity="center"
+            android:background="@drawable/bg_new_badge"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentTop="true"
+            android:layout_marginTop="10dp"
+            android:layout_marginStart="10dp"
+            android:visibility="gone"/>
+
+        <!-- Product Image -->
+        <ImageView
+            android:id="@+id/img_product"
+            android:layout_width="match_parent"
+            android:layout_height="110dp"
+            android:scaleType="centerCrop"
+            android:layout_marginTop="38dp"/>
+
+        <!-- Favorite (heart) button -->
+        <ImageButton
+            android:id="@+id/btn_favorite"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:src="@drawable/ic_favorite_border"
+            android:background="@drawable/bg_favorite_circle"
+            android:layout_alignParentEnd="true"
+            android:layout_marginEnd="6dp"
+            android:layout_marginTop="6dp"
+            android:layout_alignTop="@id/img_product"
+            app:tint="#CFD1D4" />
+
+        <!-- Stars and reviews -->
+        <LinearLayout
+            android:id="@+id/layout_stars"
+            android:orientation="horizontal"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/img_product"
+            android:layout_marginTop="4dp"
+            android:layout_marginStart="8dp"
+            android:layout_alignParentStart="true">
+
+            <ImageView
+                android:layout_width="16dp"
+                android:layout_height="16dp"
+                android:src="@drawable/ic_star"
+                app:tint="#FFB400" />
+            <ImageView
+                android:layout_width="16dp"
+                android:layout_height="16dp"
+                android:src="@drawable/ic_star"
+                app:tint="#FFB400" />
+            <ImageView
+                android:layout_width="16dp"
+                android:layout_height="16dp"
+                android:src="@drawable/ic_star"
+                app:tint="#FFB400" />
+            <ImageView
+                android:layout_width="16dp"
+                android:layout_height="16dp"
+                android:src="@drawable/ic_star"
+                app:tint="#FFB400" />
+            <ImageView
+                android:layout_width="16dp"
+                android:layout_height="16dp"
+                android:src="@drawable/ic_star"
+                app:tint="#FFB400" />
+            <TextView
+                android:id="@+id/tv_reviews"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="(10)"
+                android:textColor="#FFB400"
+                android:textSize="12sp"
+                android:layout_marginStart="2dp"/>
+        </LinearLayout>
+
+        <!-- Brand and title -->
+        <TextView
+            android:id="@+id/tv_brand"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Dorothy Perkins"
+            android:textColor="#888"
+            android:textSize="12sp"
+            android:layout_below="@id/layout_stars"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="2dp"/>
+
+        <TextView
+            android:id="@+id/tv_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Evening Dress"
+            android:textColor="#222"
+            android:textStyle="bold"
+            android:textSize="16sp"
+            android:layout_below="@id/tv_brand"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="2dp"/>
+
+        <!-- Price -->
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/tv_title"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="4dp">
+
+            <TextView
+                android:id="@+id/tv_old_price"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="15$"
+                android:textColor="#B0B0B0"
+                android:textSize="14sp"
+                android:layout_marginEnd="8dp"/>
+
+            <TextView
+                android:id="@+id/tv_new_price"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="12$"
+                android:textColor="#E53827"
+                android:textStyle="bold"
+                android:textSize="16sp"
+                android:layout_marginStart="0dp"/>
+        </LinearLayout>
+    </RelativeLayout>
+</androidx.cardview.widget.CardView>

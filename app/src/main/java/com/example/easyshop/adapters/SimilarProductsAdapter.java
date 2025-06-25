@@ -20,14 +20,12 @@ public class SimilarProductsAdapter extends RecyclerView.Adapter<SimilarProducts
         void onItemClick(Product product);
     }
 
-    private List<Product> productList;
-    private OnItemClickListener listener;
+    private final List<Product> productList;
+    private final OnItemClickListener listener;
 
-    public SimilarProductsAdapter(List<Product> productList) {
+    // Updated constructor: requires click listener
+    public SimilarProductsAdapter(List<Product> productList, OnItemClickListener listener) {
         this.productList = productList;
-    }
-
-    public void setOnItemClickListener(OnItemClickListener listener) {
         this.listener = listener;
     }
 
