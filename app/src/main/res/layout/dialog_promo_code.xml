@@ -1,6 +1,68 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
+    android:padding="0dp"
+    android:background="@drawable/bg_dialog_top_rounded"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="wrap_content">
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+    <!-- Handle Bar -->
+    <View
+        android:layout_width="60dp"
+        android:layout_height="6dp"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="16dp"
+        android:layout_marginBottom="12dp"
+        android:background="@drawable/rounded_handle_bg" />
+
+    <!-- Promo Code Input Row -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:orientation="horizontal"
+        android:layout_marginHorizontal="16dp"
+        android:background="@drawable/bg_promo_code_field"
+        android:gravity="center_vertical">
+
+        <EditText
+            android:id="@+id/et_enter_promo"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:hint="Enter your promo code"
+            android:background="@null"
+            android:paddingHorizontal="16dp"
+            android:textSize="16sp"
+            android:inputType="text"
+            android:singleLine="true" />
+
+        <ImageButton
+            android:id="@+id/btn_apply_promo_input"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:background="@drawable/ic_arrow_right"
+            android:contentDescription="Apply code"
+            android:layout_marginEnd="4dp"
+            app:tint="@android:color/white" />
+    </LinearLayout>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Your Promo Codes"
+        android:textStyle="bold"
+        android:textSize="18sp"
+        android:layout_marginStart="22dp"
+        android:layout_marginTop="22dp"
+        android:layout_marginBottom="6dp"
+        android:textColor="#222"/>
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rv_promo_list"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingHorizontal="8dp"
+        android:clipToPadding="false"/>
+</LinearLayout>

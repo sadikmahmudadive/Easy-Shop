@@ -1,18 +1,12 @@
 package com.example.easyshop.fragments;
 
 import android.os.Bundle;
+import android.text.InputType;
 import android.view.LayoutInflater;
 import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
-import android.widget.EditText;
-import android.widget.ImageButton;
-import android.widget.ImageView;
-import android.widget.PopupMenu;
-import android.widget.TextView;
-import android.widget.Toast;
-
+import android.widget.*;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -20,11 +14,14 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.example.easyshop.R;
+import com.example.easyshop.dialogs.PromoCodeBottomSheetDialog;
 import com.example.easyshop.models.BagProduct;
+import com.example.easyshop.models.PromoCode;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.*;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class BagFragment extends Fragment {
@@ -39,9 +36,20 @@ public class BagFragment extends Fragment {
     private List<BagProduct> bagProducts = new ArrayList<>();
     private int totalAmount = 0;
 
+    // Promo code state
+    private PromoCode appliedPromoCode = null;
+    private int discountedTotal = 0;
+
     // Firebase
     private DatabaseReference cartRef;
     private ValueEventListener cartListener;
+
+    // Demo promo codes
+    private final List<PromoCode> promoCodeList = Arrays.asList(
+            new PromoCode("mypromocode2020", "Personal offer", "", 10, 6, null),
+            new PromoCode("summer2020", "Summer Sale", "", 15, 23, null),
+            new PromoCode("superdeal", "Personal offer", "", 22, 6, null)
+    );
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -101,15 +109,28 @@ public class BagFragment extends Fragment {
         };
         cartRef.addValueEventListener(cartListener);
 
-        btnApplyPromo.setOnClickListener(v -> {
-            Toast.makeText(getContext(), "Promo code applied: " + etPromoCode.getText().toString(), Toast.LENGTH_SHORT).show();
-        });
+        // Show promo dialog on textbox or button tap
+        etPromoCode.setInputType(InputType.TYPE_NULL);
+        etPromoCode.setFocusable(false);
+        etPromoCode.setClickable(true);
+        etPromoCode.setOnClickListener(v -> showPromoDialog());
+        btnApplyPromo.setOnClickListener(v -> showPromoDialog());
 
         btnCheckout.setOnClickListener(v -> {
             Toast.makeText(getContext(), "Proceed to checkout!", Toast.LENGTH_SHORT).show();
         });
 
         return root;
+    }
+
+    private void showPromoDialog() {
+        PromoCodeBottomSheetDialog dialog = PromoCodeBottomSheetDialog.newInstance(
+                promoCodeList, code -> {
+                    appliedPromoCode = code;
+                    etPromoCode.setText(code.getCode());
+                    recalculateTotal();
+                });
+        dialog.show(getParentFragmentManager(), "promo_dialog");
     }
 
     @Override
@@ -125,7 +146,13 @@ public class BagFragment extends Fragment {
         for (BagProduct p : bagProducts)
             sum += p.getPrice() * p.getQuantity();
         totalAmount = sum;
-        tvTotalAmount.setText(totalAmount + "$");
+        if (appliedPromoCode != null && appliedPromoCode.getDiscountPercent() > 0) {
+            discountedTotal = (int) Math.round(totalAmount * (1 - appliedPromoCode.getDiscountPercent() / 100.0));
+            tvTotalAmount.setText(discountedTotal + "$  (" + appliedPromoCode.getDiscountPercent() + "% off)");
+        } else {
+            discountedTotal = totalAmount;
+            tvTotalAmount.setText(totalAmount + "$");
+        }
     }
 
     public static class BagAdapter extends RecyclerView.Adapter<BagAdapter.BagViewHolder> {

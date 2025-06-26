@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="84dp"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_marginHorizontal="10dp"
+    android:layout_marginBottom="14dp"
+    app:cardCornerRadius="10dp"
+    android:background="@color/white"
+    app:cardElevation="3dp"
+    android:radius="20dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="horizontal"
+        android:background="@android:color/white"
+        android:gravity="center_vertical">
+
+        <!-- Discount block -->
+        <LinearLayout
+            android:id="@+id/layout_discount"
+            android:layout_width="80dp"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:gravity="center"
+            android:background="@drawable/bg_discount_red">
+
+            <TextView
+                android:id="@+id/tv_discount_percent"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="10"
+                android:textSize="32sp"
+                android:textStyle="bold"
+                android:textColor="@android:color/white"
+                android:fontFamily="sans-serif-medium"/>
+            <TextView
+                android:id="@+id/tv_discount_off"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="% off"
+                android:textSize="15sp"
+                android:textColor="@android:color/white"
+                android:fontFamily="sans-serif"/>
+        </LinearLayout>
+
+        <ImageView
+            android:id="@+id/img_promo"
+            android:layout_width="54dp"
+            android:layout_height="54dp"
+            android:layout_marginStart="78dp"
+            android:layout_marginTop="12dp"
+            android:scaleType="centerCrop"
+            android:src="@drawable/placeholder_image"
+            android:background="@drawable/placeholder_image"
+            android:visibility="gone"/>
+
+        <!-- Center: Title & Code -->
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:gravity="center_vertical"
+            android:paddingStart="6dp"
+            android:paddingEnd="4dp">
+
+            <TextView
+                android:id="@+id/tv_promo_title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Personal offer"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:textColor="#222222"
+                android:fontFamily="sans-serif-medium"/>
+
+            <TextView
+                android:id="@+id/tv_promo_code"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="mypromocode2020"
+                android:textSize="14sp"
+                android:textColor="#444444"
+                android:layout_marginTop="2dp"
+                android:fontFamily="sans-serif"/>
+        </LinearLayout>
+
+        <!-- Right: Time and Apply Button -->
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:gravity="center_vertical"
+            android:paddingEnd="18dp"
+            android:paddingStart="4dp">
+
+            <TextView
+                android:id="@+id/tv_promo_time"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="6 days remaining"
+                android:textSize="14sp"
+                android:textColor="#888888"
+                android:fontFamily="sans-serif"
+                android:layout_gravity="end"
+                android:layout_marginBottom="10dp"
+                android:layout_marginTop="6dp"/>
+
+            <androidx.appcompat.widget.AppCompatButton
+                android:id="@+id/btn_apply_promo"
+                android:layout_width="86dp"
+                android:layout_height="40dp"
+                android:text="Apply"
+                android:textSize="15sp"
+                android:background="@drawable/bg_apply_button"
+                android:textColor="@android:color/white"
+                android:fontFamily="sans-serif-medium"
+                android:layout_gravity="end"/>
+        </LinearLayout>
+    </LinearLayout>
+</androidx.cardview.widget.CardView>
