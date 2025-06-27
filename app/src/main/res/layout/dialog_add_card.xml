@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:background="@drawable/bg_dialog_top_rounded"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="18dp">
+
+    <View
+        android:layout_width="60dp"
+        android:layout_height="6dp"
+        android:layout_gravity="center_horizontal"
+        android:background="@drawable/rounded_handle_bg"
+        android:layout_marginBottom="14dp"/>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Add new card"
+        android:textStyle="bold"
+        android:textSize="18sp"
+        android:gravity="center"
+        android:layout_marginBottom="18dp"/>
+
+    <EditText
+        android:id="@+id/et_card_name"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:hint="Name on card"
+        android:background="@drawable/bg_size_selector"
+        android:paddingHorizontal="16dp"
+        android:textSize="16sp"
+        android:layout_marginBottom="12dp"/>
+
+    <EditText
+        android:id="@+id/et_card_number"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:hint="Card number"
+        android:background="@drawable/bg_size_selector"
+        android:paddingHorizontal="16dp"
+        android:textSize="16sp"
+        android:layout_marginBottom="12dp"/>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginBottom="12dp">
+
+        <EditText
+            android:id="@+id/et_card_expiry"
+            android:layout_width="0dp"
+            android:layout_height="48dp"
+            android:layout_weight="1"
+            android:hint="Expire Date"
+            android:background="@drawable/bg_size_selector"
+            android:paddingHorizontal="16dp"
+            android:textSize="16sp"/>
+
+        <EditText
+            android:id="@+id/et_card_cvv"
+            android:layout_width="0dp"
+            android:layout_height="48dp"
+            android:layout_weight="1"
+            android:hint="CVV"
+            android:background="@drawable/bg_size_selector"
+            android:paddingHorizontal="16dp"
+            android:textSize="16sp"
+            android:layout_marginStart="8dp"/>
+    </LinearLayout>
+
+    <CheckBox
+        android:id="@+id/cb_set_default"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Set as default payment method"
+        android:textSize="15sp"
+        android:layout_marginBottom="16dp"/>
+
+    <androidx.appcompat.widget.AppCompatButton
+        android:id="@+id/btn_add_card"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:text="ADD CARD"
+        android:textStyle="bold"
+        android:textAllCaps="false"
+        android:textSize="16sp"
+        android:textColor="@android:color/white"
+        android:background="@drawable/rounded_button"/>
+</LinearLayout>

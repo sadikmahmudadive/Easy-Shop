@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#FFF"
+    android:orientation="vertical"
+    android:gravity="center_horizontal">
+
+    <ImageView
+        android:id="@+id/img_success"
+        android:layout_width="160dp"
+        android:layout_height="160dp"
+        android:src="@drawable/ic_success_bags"
+        android:layout_marginTop="60dp"
+        android:contentDescription="@string/success_icon"
+        android:scaleType="fitCenter"/>
+
+    <TextView
+        android:id="@+id/tv_success_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Success!"
+        android:textStyle="bold"
+        android:textSize="30sp"
+        android:textColor="#222"
+        android:gravity="center"
+        android:layout_marginTop="32dp"/>
+
+    <TextView
+        android:id="@+id/tv_success_msg"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Your order will be delivered soon.\nThank you for choosing our app!"
+        android:textSize="16sp"
+        android:textColor="#222"
+        android:gravity="center"
+        android:layout_marginTop="14dp"
+        android:layout_marginBottom="0dp"/>
+
+    <androidx.appcompat.widget.AppCompatButton
+        android:id="@+id/btn_continue"
+        android:layout_width="match_parent"
+        android:layout_height="56dp"
+        android:text="CONTINUE SHOPPING"
+        android:textAllCaps="true"
+        android:textSize="16sp"
+        android:textColor="@android:color/white"
+        android:background="@drawable/rounded_button"
+        android:layout_margin="34dp"/>
+</LinearLayout>

@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:paddingBottom="10dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:padding="16dp"
+        android:gravity="center_vertical"
+        android:background="@color/white"
+        android:layout_marginBottom="6dp">
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical">
+            <TextView android:id="@+id/tv_address_name"
+                android:layout_width="wrap_content" android:layout_height="wrap_content"
+                android:text="Jane Doe" android:textStyle="bold"
+                android:textSize="15sp" android:textColor="#222"/>
+            <TextView android:id="@+id/tv_address_detail"
+                android:layout_width="wrap_content" android:layout_height="wrap_content"
+                android:text="3 Newbridge Court\nChino Hills, CA 91709, United States"
+                android:textSize="14sp" android:textColor="#444"
+                android:layout_marginTop="2dp"/>
+        </LinearLayout>
+        <TextView
+            android:id="@+id/btn_edit_address"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Edit"
+            android:textStyle="bold"
+            android:textColor="#E53935"
+            android:textSize="15sp"/>
+    </LinearLayout>
+
+    <CheckBox
+        android:id="@+id/cb_default_address"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Use as the shipping address"
+        android:textSize="15sp"
+        android:layout_marginStart="4dp"/>
+</LinearLayout>

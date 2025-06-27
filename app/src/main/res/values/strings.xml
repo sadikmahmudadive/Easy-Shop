@@ -7,6 +7,7 @@
     <string name="avatar">User Avatar</string>
     <string name="add_your_photos">Add your photos</string>
     <string name="category_image">Category Image</string>
+    <string name="success_icon">Success illustration with shopping bags</string>
 
     <!-- Button and Action Labels -->
     <string name="add_to_bag">Add to Bag</string>

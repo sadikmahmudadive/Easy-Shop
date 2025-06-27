@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:padding="24dp"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="#FAFAFA">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Add Card"
+        android:textSize="22sp"
+        android:textStyle="bold"
+        android:layout_marginBottom="18dp"/>
+
+    <EditText
+        android:id="@+id/et_card_number"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Card Number"
+        android:inputType="number"
+        android:maxLength="19"
+        android:layout_marginBottom="12dp"/>
+
+    <EditText
+        android:id="@+id/et_card_holder"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Card Holder Name"
+        android:layout_marginBottom="12dp"/>
+
+    <EditText
+        android:id="@+id/et_card_expiry"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Expiry (MM/YY)"
+        android:inputType="text"
+        android:maxLength="5"
+        android:layout_marginBottom="24dp"/>
+
+    <Button
+        android:id="@+id/btn_save_card"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Save Card"/>
+</LinearLayout>

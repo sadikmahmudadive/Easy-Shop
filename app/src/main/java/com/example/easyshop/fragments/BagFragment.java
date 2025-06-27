@@ -1,5 +1,6 @@
 package com.example.easyshop.fragments;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.text.InputType;
 import android.view.LayoutInflater;
@@ -117,9 +118,10 @@ public class BagFragment extends Fragment {
         btnApplyPromo.setOnClickListener(v -> showPromoDialog());
 
         btnCheckout.setOnClickListener(v -> {
-            Toast.makeText(getContext(), "Proceed to checkout!", Toast.LENGTH_SHORT).show();
+            Intent intent = new Intent(getActivity(), com.example.easyshop.CheckoutActivity.class);
+            intent.putExtra("total", discountedTotal);
+            startActivity(intent);
         });
-
         return root;
     }
 

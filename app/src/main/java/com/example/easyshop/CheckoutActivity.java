@@ -2,102 +2,113 @@ package com.example.easyshop;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.view.MenuItem;
-import android.widget.Button;
-import android.widget.TextView;
-import android.widget.Toast;
-
-import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
+import android.widget.TextView;
+import android.widget.Button;
 
-import com.example.easyshop.models.CartItem;
-import com.example.easyshop.models.Order;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
+import com.example.easyshop.models.DeliveryMethod;
+import com.example.easyshop.models.PaymentMethod;
+import com.example.easyshop.models.ShippingAddress;
 
-import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.List;
 
 public class CheckoutActivity extends AppCompatActivity {
 
-    private TextView tvFinalTotalPrice;
-    private Button btnPlaceOrder;
-    private List<CartItem> cartItems;
-    private double totalPrice;
+    private static final int REQ_ADD_CARD = 100;
+    private static final int REQ_ADD_ADDRESS = 101;
 
-    private DatabaseReference ordersRef;
-    private DatabaseReference cartRef;
-    private FirebaseUser currentUser;
+    private TextView tvAddressName, tvAddressDetail, tvAddressCity;
+    private TextView tvOrderTotal, tvDeliveryFee, tvSummaryTotal;
+    private Button btnSubmitOrder;
+
+    private ShippingAddress shippingAddress;
+    private ArrayList<PaymentMethod> paymentMethods = new ArrayList<>();
+    private PaymentMethod selectedPaymentMethod;
+    private ArrayList<DeliveryMethod> deliveryMethods = new ArrayList<>();
+    private DeliveryMethod selectedDeliveryMethod;
+
+    private int orderTotal = 0; // <-- Store the order total passed from BagFragment
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_checkout);
 
-        Toolbar toolbar = findViewById(R.id.toolbar_checkout);
-        setSupportActionBar(toolbar);
-        if (getSupportActionBar() != null) {
-            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        }
+        // Bind views
+        tvAddressName = findViewById(R.id.tv_address_name);
+        tvAddressDetail = findViewById(R.id.tv_address_detail);
+        tvAddressCity = findViewById(R.id.tv_address_city);
+        tvOrderTotal = findViewById(R.id.tv_order_total);
+        tvDeliveryFee = findViewById(R.id.tv_delivery_fee);
+        tvSummaryTotal = findViewById(R.id.tv_summary_total);
+        btnSubmitOrder = findViewById(R.id.btn_submit_order);
 
-        tvFinalTotalPrice = findViewById(R.id.tv_final_total_price);
-        btnPlaceOrder = findViewById(R.id.btn_place_order);
+        // Get the order total from the intent (sent by BagFragment)
+        orderTotal = getIntent().getIntExtra("total", 0);
 
-        currentUser = FirebaseAuth.getInstance().getCurrentUser();
-        if (currentUser == null) {
-            // Should not happen, but as a safeguard
-            Toast.makeText(this, "You must be logged in to checkout", Toast.LENGTH_SHORT).show();
-            finish();
-            return;
-        }
+        // Dummy data for address, payment and delivery
+        shippingAddress = new ShippingAddress(0, "Jane Doe", "3 Newbridge Court", "Chino Hills, CA 91709, United States");
+        paymentMethods.add(new PaymentMethod(1, PaymentMethod.PaymentType.CARD, "Mastercard", "3947", "**** **** **** 3947", R.drawable.ic_mastercard));
+        paymentMethods.add(new PaymentMethod(2, PaymentMethod.PaymentType.ONLINE, null, null, "Online Payment", R.drawable.ic_online_payment));
+        paymentMethods.add(new PaymentMethod(3, PaymentMethod.PaymentType.COD, null, null, "Cash on delivery", R.drawable.ic_cod));
+        selectedPaymentMethod = paymentMethods.get(0);
+        deliveryMethods.add(new DeliveryMethod(1, "FedEx", R.drawable.ic_fedex, "2-3 days"));
+        deliveryMethods.add(new DeliveryMethod(2, "SteadFast", R.drawable.ic_steadfast, "2-3 days"));
+        deliveryMethods.add(new DeliveryMethod(3, "DHL", R.drawable.ic_dhl, "2-3 days"));
+        selectedDeliveryMethod = deliveryMethods.get(0);
 
-        ordersRef = FirebaseDatabase.getInstance().getReference("orders").child(currentUser.getUid());
-        cartRef = FirebaseDatabase.getInstance().getReference("carts").child(currentUser.getUid());
+        // Set initial UI
+        updateShippingAddressUI();
+        updateOrderSummaryUI();
 
-        Intent intent = getIntent();
-        totalPrice = intent.getDoubleExtra("TOTAL_PRICE", 0);
-        cartItems = (List<CartItem>) intent.getSerializableExtra("CART_ITEMS");
+        findViewById(R.id.btn_change_address).setOnClickListener(v -> {
+            startActivityForResult(new Intent(this, ShippingAddressesActivity.class), REQ_ADD_ADDRESS);
+        });
 
-        tvFinalTotalPrice.setText(String.format("%.2f$", totalPrice));
+        findViewById(R.id.btn_change_payment).setOnClickListener(v -> {
+            startActivityForResult(new Intent(this, AddCardActivity.class), REQ_ADD_CARD);
+        });
 
-        btnPlaceOrder.setOnClickListener(v -> placeOrder());
+        btnSubmitOrder.setOnClickListener(v -> {
+            Intent intent = new Intent(CheckoutActivity.this, SuccessSplashActivity.class);
+            startActivity(intent);
+            finish(); // Optionally finish checkout so user can't go back
+        });
     }
 
-    private void placeOrder() {
-        String orderId = ordersRef.push().getKey();
-        long orderDate = System.currentTimeMillis();
+    private void updateShippingAddressUI() {
+        tvAddressName.setText(shippingAddress.name);
+        tvAddressDetail.setText(shippingAddress.addressLine);
+        tvAddressCity.setText(shippingAddress.city);
+    }
 
-        if (orderId != null && cartItems != null && !cartItems.isEmpty()) {
-            Order order = new Order(orderId, currentUser.getUid(), cartItems, totalPrice, orderDate);
-
-            ordersRef.child(orderId).setValue(order).addOnCompleteListener(task -> {
-                if (task.isSuccessful()) {
-                    // Clear the cart after placing the order
-                    cartRef.removeValue();
-                    Toast.makeText(this, "Order placed successfully!", Toast.LENGTH_LONG).show();
-
-                    // Navigate back to the main activity (home screen)
-                    Intent mainIntent = new Intent(CheckoutActivity.this, MainActivity.class);
-                    mainIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                    startActivity(mainIntent);
-                    finish();
-                } else {
-                    Toast.makeText(this, "Failed to place order. Please try again.", Toast.LENGTH_SHORT).show();
-                }
-            });
-        }
+    private void updateOrderSummaryUI() {
+        int deliveryFee = 15;
+        int summary = orderTotal + deliveryFee;
+        tvOrderTotal.setText(orderTotal + "$");
+        tvDeliveryFee.setText(deliveryFee + "$");
+        tvSummaryTotal.setText(summary + "$");
     }
 
     @Override
-    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-        if (item.getItemId() == android.R.id.home) {
-            onBackPressed();
-            return true;
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (resultCode == RESULT_OK && data != null) {
+            if (requestCode == REQ_ADD_CARD) {
+                PaymentMethod card = (PaymentMethod) data.getSerializableExtra("card");
+                if (card != null) {
+                    paymentMethods.add(card);
+                    selectedPaymentMethod = card;
+                    // Update UI accordingly
+                }
+            } else if (requestCode == REQ_ADD_ADDRESS) {
+                ShippingAddress address = (ShippingAddress) data.getSerializableExtra("address");
+                if (address != null) {
+                    shippingAddress = address;
+                    updateShippingAddressUI();
+                }
+            }
         }
-        return super.onOptionsItemSelected(item);
     }
 }
