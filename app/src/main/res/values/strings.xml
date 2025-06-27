@@ -8,6 +8,7 @@
     <string name="add_your_photos">Add your photos</string>
     <string name="category_image">Category Image</string>
     <string name="success_icon">Success illustration with shopping bags</string>
+    <string name="product_image_desc">Product Image</string>
 
     <!-- Button and Action Labels -->
     <string name="add_to_bag">Add to Bag</string>
@@ -49,8 +50,6 @@
     <string name="review_placeholder">Your review</string>
     <string name="review_opinion_hint">Please share your opinion about the product</string>
 
-    <string name="product_image_desc">Product Image</string>
-
     <!-- Ratings & Reviews -->
     <string name="rating_reviews_title">Rating &amp; Reviews</string>
     <string name="num_ratings">%1$d ratings</string>
@@ -88,4 +87,8 @@
 
     <!-- Favorites -->
     <string name="empty_favourites">No favourites</string>
+
+    <!-- Drawer Accessibility -->
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
 </resources>

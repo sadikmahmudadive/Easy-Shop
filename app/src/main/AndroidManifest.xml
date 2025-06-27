@@ -21,6 +21,24 @@
         android:theme="@style/Theme.EasyShop"
         tools:targetApi="31">
         <activity
+            android:name=".ManageProductsActivity"
+            android:exported="false" />
+        <activity
+            android:name=".AdminStatisticsActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ManagePromosActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ManageUsersActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ManageOrdersActivity"
+            android:exported="false" />
+        <activity
+            android:name=".AdminPanelActivity"
+            android:exported="false" />
+        <activity
             android:name=".SettingsActivity"
             android:exported="false" />
         <activity

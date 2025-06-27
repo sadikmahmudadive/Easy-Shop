@@ -22,13 +22,16 @@ import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.common.api.ApiException;
-import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
+import com.google.firebase.database.FirebaseDatabase;
+
+import java.util.HashMap;
+import java.util.Map;
 
 public class LoginActivity extends AppCompatActivity {
 
@@ -43,6 +46,10 @@ public class LoginActivity extends AppCompatActivity {
 
     private FirebaseAuth mAuth;
     private GoogleSignInClient mGoogleSignInClient;
+
+    // Admin credentials
+    private static final String ADMIN_EMAIL = "admin@mail.com";
+    private static final String ADMIN_PASSWORD = "admin1234";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -105,6 +112,30 @@ public class LoginActivity extends AppCompatActivity {
             return;
         }
 
+        // Admin login shortcut logic
+        if (email.equalsIgnoreCase(ADMIN_EMAIL) && password.equals(ADMIN_PASSWORD)) {
+            setLoadingState(true);
+            mAuth.signInWithEmailAndPassword(ADMIN_EMAIL, ADMIN_PASSWORD)
+                    .addOnCompleteListener(this, task -> {
+                        if (task.isSuccessful()) {
+                            // Admin exists, ensure admin profile in Firebase DB and launch Admin Panel
+                            createOrUpdateAdminProfile(true);
+                        } else {
+                            // If admin account does not exist, create it
+                            mAuth.createUserWithEmailAndPassword(ADMIN_EMAIL, ADMIN_PASSWORD)
+                                    .addOnCompleteListener(this, createTask -> {
+                                        if (createTask.isSuccessful()) {
+                                            createOrUpdateAdminProfile(true);
+                                        } else {
+                                            setLoadingState(false);
+                                            Toast.makeText(LoginActivity.this, "Admin login failed: " + createTask.getException().getMessage(), Toast.LENGTH_LONG).show();
+                                        }
+                                    });
+                        }
+                    });
+            return;
+        }
+
         setLoadingState(true);
         mAuth.signInWithEmailAndPassword(email, password)
                 .addOnCompleteListener(this, task -> {
@@ -115,6 +146,48 @@ public class LoginActivity extends AppCompatActivity {
                     } else {
                         Log.w(TAG, "signInWithEmail:failure", task.getException());
                         Toast.makeText(LoginActivity.this, "Authentication failed: " + task.getException().getMessage(), Toast.LENGTH_LONG).show();
+                    }
+                });
+    }
+
+    /**
+     * Creates or updates the admin's user profile in Firebase Database as an admin.
+     * If launchAdminPanel is true, opens AdminPanelActivity after setup.
+     * Uses the existing "Users" node for admin as well.
+     */
+    private void createOrUpdateAdminProfile(boolean launchAdminPanel) {
+        FirebaseUser adminUser = mAuth.getCurrentUser();
+        if (adminUser == null) {
+            setLoadingState(false);
+            Toast.makeText(this, "Admin user not found after login.", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        String uid = adminUser.getUid();
+        Map<String, Object> adminProfile = new HashMap<>();
+        adminProfile.put("email", ADMIN_EMAIL);
+        adminProfile.put("isAdmin", true);
+        // Default placeholders for profile photo and name (admin can update later)
+        adminProfile.put("name", "Admin User");
+        adminProfile.put("photoUrl", "");
+
+        // Use "Users" node (case-sensitive!) for admin profile too
+        FirebaseDatabase.getInstance().getReference("Users")
+                .child(uid)
+                .updateChildren(adminProfile)
+                .addOnCompleteListener(task -> {
+                    setLoadingState(false);
+                    if (task.isSuccessful()) {
+                        Toast.makeText(LoginActivity.this, "Admin Login Successful!", Toast.LENGTH_SHORT).show();
+                        if (launchAdminPanel) {
+                            Intent intent = new Intent(LoginActivity.this, AdminPanelActivity.class);
+                            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                            startActivity(intent);
+                            finish();
+                        } else {
+                            navigateToMainApp();
+                        }
+                    } else {
+                        Toast.makeText(LoginActivity.this, "Failed to set admin profile: " + task.getException().getMessage(), Toast.LENGTH_LONG).show();
                     }
                 });
     }

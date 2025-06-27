@@ -1,0 +1,18 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="64dp"
+    android:height="64dp"
+    android:viewportWidth="64"
+    android:viewportHeight="64">
+    <!-- Outer circle: M 32 0 a 32 32 0 1 0 0.01 0 -->
+    <path
+        android:fillColor="#FFB300"
+        android:pathData="M32,0a32,32 0 1,0 0.01,0z"/>
+    <!-- Face -->
+    <path
+        android:fillColor="#FFF8E1"
+        android:pathData="M32,18a10,10 0 1,0 0,20a10,10 0 1,0 0,-20z"/>
+    <!-- Shoulders -->
+    <path
+        android:fillColor="#FBC02D"
+        android:pathData="M32,38c-8,0 -16,4 -16,8v2h32v-2c0,-4 -8,-8 -16,-8z"/>
+</vector>

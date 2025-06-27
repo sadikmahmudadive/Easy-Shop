@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_margin="12dp"
+    app:cardCornerRadius="20dp"
+    app:cardElevation="2dp"
+    android:backgroundTint="#FFFFFF">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="20dp">
+
+        <!-- Title -->
+        <TextView
+            android:id="@+id/tv_get_more_customers_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Get more customers!"
+            android:textStyle="bold"
+            android:textSize="17sp"
+            android:textColor="#222"/>
+
+        <!-- Subtitle/Description -->
+        <TextView
+            android:id="@+id/tv_get_more_customers_description"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="50% of new customers redeem products because the author shares the work on social networks. Share your website!"
+            android:textSize="15sp"
+            android:textColor="#646464"
+            android:layout_marginTop="6dp"
+            android:layout_marginBottom="12dp"/>
+
+        <!-- Social share buttons -->
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginTop="4dp">
+
+            <ImageButton
+                android:id="@+id/btn_share_twitter"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:background="@drawable/circle_grey_bg"
+                android:src="@drawable/ic_twitter"
+                android:contentDescription="Share on Twitter"
+                android:scaleType="centerInside"
+                android:layout_marginEnd="12dp"/>
+
+            <ImageButton
+                android:id="@+id/btn_share_facebook"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:background="@drawable/circle_grey_bg"
+                android:src="@drawable/ic_facebook"
+                android:contentDescription="Share on Facebook"
+                android:scaleType="centerInside"
+                android:layout_marginEnd="12dp"/>
+
+            <ImageButton
+                android:id="@+id/btn_share_link"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:background="@drawable/circle_grey_bg"
+                android:src="@drawable/ic_link"
+                android:contentDescription="Copy Link"
+                android:scaleType="centerInside"/>
+        </LinearLayout>
+
+    </LinearLayout>
+</androidx.cardview.widget.CardView>

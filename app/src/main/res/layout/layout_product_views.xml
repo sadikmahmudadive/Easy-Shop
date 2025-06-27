@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_margin="12dp"
+    app:cardCornerRadius="20dp"
+    app:cardElevation="2dp"
+    android:backgroundTint="#FFFFFF">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="20dp">
+
+        <!-- Title & Filter -->
+        <TextView
+            android:id="@+id/tv_product_views_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Product views"
+            android:textStyle="bold"
+            android:textSize="17sp"
+            android:textColor="#222"/>
+
+        <Spinner
+            android:id="@+id/spinner_product_views_time_range"
+            android:layout_width="match_parent"
+            android:layout_height="40dp"
+            android:layout_marginTop="12dp"
+            android:background="@drawable/bg_spinner"
+            android:paddingStart="12dp"
+            android:paddingEnd="12dp"
+            android:spinnerMode="dropdown"
+            android:popupBackground="@drawable/bg_spinner"
+            />
+
+        <!-- Chart area (replace with actual chart in production) -->
+        <FrameLayout
+            android:id="@+id/bar_chart_area"
+            android:layout_width="match_parent"
+            android:layout_height="160dp"
+            android:layout_marginTop="18dp"
+            android:layout_marginBottom="18dp"
+            android:background="@drawable/bg_chart_placeholder">
+            <!-- Bar chart or placeholder graphic goes here -->
+        </FrameLayout>
+
+        <!-- Legends -->
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginBottom="8dp">
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginEnd="12dp">
+                <View
+                    android:layout_width="16dp"
+                    android:layout_height="3dp"
+                    android:background="#4476F3"
+                    android:layout_gravity="center_vertical"/>
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text=" Seller visits"
+                    android:textSize="13sp"
+                    android:textColor="#222"
+                    android:layout_marginStart="4dp"/>
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+                <View
+                    android:layout_width="16dp"
+                    android:layout_height="3dp"
+                    android:background="#FFD580"
+                    android:layout_gravity="center_vertical"/>
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text=" Customer conf."
+                    android:textSize="13sp"
+                    android:textColor="#888"
+                    android:layout_marginStart="4dp"/>
+            </LinearLayout>
+        </LinearLayout>
+    </LinearLayout>
+</androidx.cardview.widget.CardView>

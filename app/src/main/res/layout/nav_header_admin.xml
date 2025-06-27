@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:padding="24dp"
+    android:layout_width="match_parent"
+    android:layout_height="180dp"
+    android:background="@color/primary_red"
+    android:gravity="bottom">
+
+    <ImageView
+        android:id="@+id/img_admin_avatar"
+        android:layout_width="64dp"
+        android:layout_height="64dp"
+        android:src="@drawable/ic_admin_avatar"
+        android:background="@drawable/circle_white_bg"
+        android:scaleType="centerCrop"
+        android:contentDescription="Admin Avatar"
+        android:layout_marginBottom="8dp"/>
+
+    <TextView
+        android:id="@+id/tv_admin_name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Admin User"
+        android:textColor="@android:color/white"
+        android:textStyle="bold"
+        android:textSize="18sp"
+        android:layout_marginTop="8dp"/>
+
+    <TextView
+        android:id="@+id/tv_admin_email"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="admin@mail.com"
+        android:textColor="@android:color/white"
+        android:textSize="14sp"/>
+</LinearLayout>
