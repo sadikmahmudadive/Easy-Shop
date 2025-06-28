@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_marginStart="16dp"
+    android:layout_marginEnd="16dp"
+    android:layout_marginBottom="18dp"
+    android:backgroundTint="#FFFFFF"
+    app:cardCornerRadius="18dp"
+    app:cardElevation="0dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="20dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Images and CTA"
+            android:textStyle="bold"
+            android:textSize="15sp"
+            android:textColor="#222"
+            android:layout_marginBottom="18dp"/>
+
+        <!-- Repeat this block for each image field -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="First image"
+            android:textSize="14sp"
+            android:textColor="#222"/>
+
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="140dp"
+            android:layout_marginTop="6dp"
+            android:layout_marginBottom="14dp"
+            android:background="@drawable/bg_image_placeholder">
+
+            <ImageView
+                android:id="@+id/img_first"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:scaleType="centerCrop"
+                android:src="@drawable/placeholder_image" />
+
+            <androidx.appcompat.widget.AppCompatButton
+                android:id="@+id/btn_upload_first"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Click or drop image"
+                android:layout_gravity="center"
+                android:background="@drawable/bg_upload_btn"
+                android:textColor="#222"
+                android:textSize="13sp"
+                android:drawableStart="@drawable/ic_upload"
+                android:drawablePadding="8dp" />
+        </FrameLayout>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Second image"
+            android:textSize="14sp"
+            android:textColor="#222"/>
+
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="140dp"
+            android:layout_marginTop="6dp"
+            android:layout_marginBottom="14dp"
+            android:background="@drawable/bg_image_placeholder">
+
+            <ImageView
+                android:id="@+id/img_second"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:scaleType="centerCrop"
+                android:src="@drawable/placeholder_image" />
+
+            <androidx.appcompat.widget.AppCompatButton
+                android:id="@+id/btn_upload_second"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Click or drop image"
+                android:layout_gravity="center"
+                android:background="@drawable/bg_upload_btn"
+                android:textColor="#222"
+                android:textSize="13sp"
+                android:drawableStart="@drawable/ic_upload"
+                android:drawablePadding="8dp" />
+        </FrameLayout>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Third image"
+            android:textSize="14sp"
+            android:textColor="#222"/>
+
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="140dp"
+            android:layout_marginTop="6dp"
+            android:layout_marginBottom="14dp"
+            android:background="@drawable/bg_image_placeholder">
+
+            <ImageView
+                android:id="@+id/img_third"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:scaleType="centerCrop"
+                android:src="@drawable/placeholder_image" />
+
+            <androidx.appcompat.widget.AppCompatButton
+                android:id="@+id/btn_upload_third"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Click or drop image"
+                android:layout_gravity="center"
+                android:background="@drawable/bg_upload_btn"
+                android:textColor="#222"
+                android:textSize="13sp"
+                android:drawableStart="@drawable/ic_upload"
+                android:drawablePadding="8dp" />
+        </FrameLayout>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Category"
+            android:textSize="14sp"
+            android:textColor="#222"/>
+
+        <Spinner
+            android:id="@+id/spinner_category"
+            android:layout_width="match_parent"
+            android:layout_height="44dp"
+            android:layout_marginTop="6dp"
+            android:background="@drawable/bg_input"
+            android:paddingStart="12dp"
+            android:paddingEnd="12dp" />
+    </LinearLayout>
+</androidx.cardview.widget.CardView>
