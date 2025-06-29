@@ -272,8 +272,13 @@ public class ProductDetailsActivity extends AppCompatActivity implements WriteRe
     private void addToCart(Product product, String size) {
         String userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
         String productId = product.getProductId();
-        String cartItemId = productId + "_" + (size != null ? size : product.getSize());
-
+        String brand = product.getBrand();
+        String description = product.getDescription();
+        String category = product.getCategory();
+        String color = product.getColor();
+        String imageUrl = product.getImageUrl();
+        String selectedSizeForCart = size != null ? size : product.getSize();
+        int quantity = 1;
         int price = 0;
         try {
             price = (int) Math.round(Double.parseDouble(product.getPrice()));
@@ -284,12 +289,17 @@ public class ProductDetailsActivity extends AppCompatActivity implements WriteRe
         BagProduct bagProduct = new BagProduct(
                 productId,
                 product.getName(),
-                product.getColor(),
-                size != null ? size : product.getSize(),
-                1,
+                brand != null ? brand : "",
+                description != null ? description : "",
+                category != null ? category : "",
+                color != null ? color : "",
+                selectedSizeForCart != null ? selectedSizeForCart : "",
+                quantity,
                 price,
-                product.getImageUrl()
+                imageUrl != null ? imageUrl : ""
         );
+
+        String cartItemId = productId + "_" + (selectedSizeForCart != null ? selectedSizeForCart : "");
 
         FirebaseDatabase.getInstance()
                 .getReference("cart")

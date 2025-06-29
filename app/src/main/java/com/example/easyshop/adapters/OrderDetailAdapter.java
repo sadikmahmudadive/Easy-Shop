@@ -14,17 +14,19 @@ import com.bumptech.glide.Glide;
 import com.example.easyshop.R;
 import com.example.easyshop.models.CartItem;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
 public class OrderDetailAdapter extends RecyclerView.Adapter<OrderDetailAdapter.DetailViewHolder> {
 
-    private Context context;
-    private List<CartItem> items;
+    private final Context context;
+    private final List<CartItem> items;
 
     public OrderDetailAdapter(Context context, List<CartItem> items) {
         this.context = context;
-        this.items = items;
+        // Defensive: avoid null pointer exceptions
+        this.items = (items != null) ? items : new ArrayList<>();
     }
 
     @NonNull
@@ -58,7 +60,8 @@ public class OrderDetailAdapter extends RecyclerView.Adapter<OrderDetailAdapter.
 
     @Override
     public int getItemCount() {
-        return items.size();
+        // Defensive: avoid null pointer exceptions
+        return (items != null) ? items.size() : 0;
     }
 
     static class DetailViewHolder extends RecyclerView.ViewHolder {

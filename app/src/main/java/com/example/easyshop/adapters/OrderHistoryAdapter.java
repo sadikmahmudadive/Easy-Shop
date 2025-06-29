@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -21,8 +22,8 @@ import java.util.Locale;
 
 public class OrderHistoryAdapter extends RecyclerView.Adapter<OrderHistoryAdapter.OrderViewHolder> {
 
-    private Context context;
-    private List<Order> orderList;
+    private final Context context;
+    private final List<Order> orderList;
 
     public OrderHistoryAdapter(Context context, List<Order> orderList) {
         this.context = context;
@@ -41,14 +42,15 @@ public class OrderHistoryAdapter extends RecyclerView.Adapter<OrderHistoryAdapte
         Order order = orderList.get(position);
         if (order == null) return;
 
-        holder.tvOrderId.setText(order.getOrderId());
-        holder.tvOrderTotalPrice.setText(String.format(Locale.US, "%.2f$", order.getTotalPrice()));
+        holder.tvOrderNum.setText("Order №" + order.getOrderId());
+        SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy", Locale.getDefault());
+        holder.tvOrderDate.setText(sdf.format(new Date(order.getOrderDate())));
+        holder.tvTrackingNumber.setText("Tracking number: " + (order.getTrackingNumber() != null ? order.getTrackingNumber() : ""));
+        holder.tvQuantity.setText("Quantity: " + (order.getItems() != null ? order.getItems().size() : 0));
+        holder.tvTotalAmount.setText("Total Amount: " + String.format(Locale.US, "%.0f$", order.getTotalPrice()));
+        holder.tvStatus.setText(order.getStatus() != null ? order.getStatus() : "Delivered");
 
-        SimpleDateFormat sdf = new SimpleDateFormat("MMMM dd, yyyy", Locale.getDefault());
-        String dateString = sdf.format(new Date(order.getOrderDate()));
-        holder.tvOrderDate.setText(dateString);
-
-        holder.itemView.setOnClickListener(v -> {
+        holder.btnDetails.setOnClickListener(v -> {
             Intent intent = new Intent(context, OrderDetailsActivity.class);
             intent.putExtra("ORDER_DETAILS", order);
             context.startActivity(intent);
@@ -60,14 +62,24 @@ public class OrderHistoryAdapter extends RecyclerView.Adapter<OrderHistoryAdapte
         return orderList.size();
     }
 
-    static class OrderViewHolder extends RecyclerView.ViewHolder {
-        TextView tvOrderId, tvOrderDate, tvOrderTotalPrice;
+    public void updateData(List<Order> orders) {
+        orderList.clear();
+        orderList.addAll(orders);
+        notifyDataSetChanged();
+    }
 
+    static class OrderViewHolder extends RecyclerView.ViewHolder {
+        TextView tvOrderNum, tvOrderDate, tvTrackingNumber, tvQuantity, tvTotalAmount, tvStatus;
+        Button btnDetails;
         public OrderViewHolder(@NonNull View itemView) {
             super(itemView);
-            tvOrderId = itemView.findViewById(R.id.tv_order_id);
+            tvOrderNum = itemView.findViewById(R.id.tv_order_num);
             tvOrderDate = itemView.findViewById(R.id.tv_order_date);
-            tvOrderTotalPrice = itemView.findViewById(R.id.tv_order_total_price);
+            tvTrackingNumber = itemView.findViewById(R.id.tv_tracking_number);
+            tvQuantity = itemView.findViewById(R.id.tv_quantity);
+            tvTotalAmount = itemView.findViewById(R.id.tv_total_amount);
+            tvStatus = itemView.findViewById(R.id.tv_status);
+            btnDetails = itemView.findViewById(R.id.btn_details);
         }
     }
 }

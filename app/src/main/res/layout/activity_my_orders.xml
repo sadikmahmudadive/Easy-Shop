@@ -1,10 +1,95 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".MyOrdersActivity">
+    android:background="@android:color/white">
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:paddingTop="8dp">
+
+        <TextView
+            android:id="@+id/tv_no_orders"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:text="You have no orders yet."
+            android:textSize="18sp"
+            android:textColor="#888"
+            android:visibility="gone"
+            android:layout_marginTop="32dp"/>
+
+        <!-- Top bar -->
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="16dp">
+            <ImageButton
+                android:id="@+id/btn_back"
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                android:src="@drawable/ic_arrow_back"
+                android:background="@android:color/transparent"/>
+            <TextView
+                android:id="@+id/tv_title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="My Orders"
+                android:textSize="24sp"
+                android:textStyle="bold"
+                android:layout_centerHorizontal="true"/>
+            <ImageButton
+                android:id="@+id/btn_search"
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                android:src="@drawable/ic_search"
+                android:background="@android:color/transparent"
+                android:layout_alignParentEnd="true"/>
+        </RelativeLayout>
+
+        <!-- Tabs -->
+        <LinearLayout
+            android:id="@+id/order_tabs"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center">
+            <androidx.appcompat.widget.AppCompatButton
+                android:id="@+id/btn_delivered"
+                android:layout_width="wrap_content"
+                android:layout_height="30dp"
+                android:text="Delivered"
+                android:background="@drawable/bg_tab_selected"
+                android:textStyle="bold"
+                android:textColor="@android:color/white"
+                android:layout_marginEnd="8dp"/>
+            <androidx.appcompat.widget.AppCompatButton
+                android:id="@+id/btn_processing"
+                android:layout_width="wrap_content"
+                android:layout_height="30dp"
+                android:text="Processing"
+                android:background="@drawable/bg_tab_unselected"
+                android:textColor="#222"
+                android:layout_marginEnd="8dp"/>
+            <androidx.appcompat.widget.AppCompatButton
+                android:id="@+id/btn_cancelled"
+                android:layout_width="wrap_content"
+                android:layout_height="30dp"
+                android:text="Cancelled"
+                android:background="@drawable/bg_tab_unselected"
+                android:textColor="#222"/>
+        </LinearLayout>
+
+        <!-- Orders List -->
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rv_orders"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:padding="16dp"
+            android:clipToPadding="false"/>
+    </LinearLayout>
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

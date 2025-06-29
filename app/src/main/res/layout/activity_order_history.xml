@@ -2,42 +2,101 @@
 <androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".OrderHistoryActivity">
+    android:background="@android:color/white">
 
     <com.google.android.material.appbar.AppBarLayout
         android:id="@+id/app_bar_layout"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:background="@android:color/white"
+        android:elevation="0dp">
 
         <androidx.appcompat.widget.Toolbar
             android:id="@+id/toolbar_order_history"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
-            app:title="My Orders" />
+            android:background="@android:color/white"
+            app:title=""
+            app:contentInsetStart="0dp"
+            app:contentInsetLeft="0dp">
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:gravity="center_vertical">
+
+                <ImageButton
+                    android:id="@+id/btn_back"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:background="@android:color/transparent"
+                    android:src="@drawable/ic_arrow_back"
+                    android:layout_centerVertical="true"
+                    android:layout_alignParentStart="true"
+                    android:contentDescription="Back" />
+
+                <TextView
+                    android:id="@+id/tv_order_history_title"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerHorizontal="true"
+                    android:text="My Orders"
+                    android:textColor="#222"
+                    android:textSize="22sp"
+                    android:textStyle="bold"
+                    android:gravity="center"
+                    android:layout_centerVertical="true"/>
+
+                <ImageButton
+                    android:id="@+id/btn_search"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:background="@android:color/transparent"
+                    android:src="@drawable/ic_search"
+                    android:layout_alignParentEnd="true"
+                    android:contentDescription="Search" />
+            </RelativeLayout>
+        </androidx.appcompat.widget.Toolbar>
     </com.google.android.material.appbar.AppBarLayout>
 
-    <FrameLayout
+    <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        app:layout_behavior="@string/appbar_scrolling_view_behavior">
+        app:layout_behavior="@string/appbar_scrolling_view_behavior"
+        android:paddingTop="0dp">
 
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/rv_order_history"
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            tools:listitem="@layout/item_order_history" />
-
-        <TextView
-            android:id="@+id/tv_no_orders"
-            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:text="You have no orders yet."
-            android:textSize="18sp"
-            android:visibility="gone" />
+            android:orientation="vertical"
+            android:padding="0dp"
+            android:background="@android:color/white">
 
-    </FrameLayout>
+            <!-- Orders RecyclerView -->
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rv_order_history"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingStart="12dp"
+                android:paddingEnd="12dp"
+                android:layout_marginTop="16dp"
+                android:layout_marginBottom="16dp"
+                tools:itemCount="3"
+                tools:listitem="@layout/item_order_history" />
 
+            <TextView
+                android:id="@+id/tv_no_orders"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:text="You have no orders yet."
+                android:textSize="18sp"
+                android:textColor="#888"
+                android:visibility="gone"
+                android:layout_marginTop="60dp"/>
+        </LinearLayout>
+    </androidx.core.widget.NestedScrollView>
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

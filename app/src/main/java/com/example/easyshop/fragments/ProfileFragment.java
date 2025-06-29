@@ -30,7 +30,7 @@ import de.hdodenhof.circleimageview.CircleImageView;
 public class ProfileFragment extends Fragment {
 
     private CircleImageView ivProfilePicture;
-    private TextView tvProfileName, tvProfileEmail;
+    private TextView tvProfileName, tvProfileEmail, tvOrderCount;
     private LinearLayout rowMyOrders, rowShippingAddresses, rowPaymentMethods, rowPromocodes, rowMyReviews, rowSettings;
     private MaterialButton btnLogout;
     private ImageView ivProfileSearch;
@@ -47,6 +47,7 @@ public class ProfileFragment extends Fragment {
         ivProfilePicture = view.findViewById(R.id.iv_profile_picture);
         tvProfileName = view.findViewById(R.id.tv_profile_name);
         tvProfileEmail = view.findViewById(R.id.tv_profile_email);
+        tvOrderCount = view.findViewById(R.id.tv_order_count);
 
         rowMyOrders = view.findViewById(R.id.row_my_orders);
         rowShippingAddresses = view.findViewById(R.id.row_shipping_addresses);
@@ -60,6 +61,7 @@ public class ProfileFragment extends Fragment {
 
         mAuth = FirebaseAuth.getInstance();
         loadUserData();
+        loadOrderCount();
 
         rowMyOrders.setOnClickListener(v -> {
             startActivity(new Intent(getActivity(), OrderHistoryActivity.class));
@@ -168,6 +170,28 @@ public class ProfileFragment extends Fragment {
             ivProfilePicture.setImageResource(R.drawable.placeholder_image);
             Toast.makeText(getContext(), "Not logged in", Toast.LENGTH_SHORT).show();
         }
+    }
+
+    private void loadOrderCount() {
+        FirebaseUser user = mAuth.getCurrentUser();
+        if (user == null) {
+            tvOrderCount.setText("Already have 0 orders");
+            return;
+        }
+        String uid = user.getUid();
+        DatabaseReference ordersRef = FirebaseDatabase.getInstance().getReference("orders").child(uid);
+        ordersRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                long count = snapshot.getChildrenCount();
+                tvOrderCount.setText("Already have " + count + (count == 1 ? " order" : " orders"));
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                tvOrderCount.setText("Already have 0 orders");
+            }
+        });
     }
 
     @Override

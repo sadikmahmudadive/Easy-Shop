@@ -3,6 +3,7 @@ package com.example.easyshop.fragments;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.InputType;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuInflater;
 import android.view.View;
@@ -17,10 +18,13 @@ import com.bumptech.glide.Glide;
 import com.example.easyshop.R;
 import com.example.easyshop.dialogs.PromoCodeBottomSheetDialog;
 import com.example.easyshop.models.BagProduct;
+import com.example.easyshop.models.CartItem;
+import com.example.easyshop.models.Product;
 import com.example.easyshop.models.PromoCode;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.*;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -118,8 +122,42 @@ public class BagFragment extends Fragment {
         btnApplyPromo.setOnClickListener(v -> showPromoDialog());
 
         btnCheckout.setOnClickListener(v -> {
+            // Convert BagProduct list to CartItem list for CheckoutActivity
+            ArrayList<CartItem> cartItems = new ArrayList<>();
+            for (BagProduct bagProduct : bagProducts) {
+                // Convert BagProduct to Product
+                Product product = new Product();
+                product.setProductId(bagProduct.getProductId());
+                product.setName(bagProduct.getName());
+                product.setBrand(bagProduct.getBrand());
+                product.setDescription(bagProduct.getDescription());
+                product.setCategory(bagProduct.getCategory());
+                product.setPrice(String.valueOf(bagProduct.getPrice()));
+                product.setImageUrl(bagProduct.getImageUrl());
+                product.setColor(bagProduct.getColor());
+                product.setSelectedSize(bagProduct.getSize());
+                product.setSize(bagProduct.getSize());
+                // Add other fields as needed
+
+                CartItem cartItem = new CartItem();
+                cartItem.setProduct(product);
+                cartItem.setQuantity(bagProduct.getQuantity());
+                cartItems.add(cartItem);
+            }
+
+            int totalToSend = (appliedPromoCode != null && appliedPromoCode.getDiscountPercent() > 0) ? discountedTotal : totalAmount;
+
+            // Debug log
+            Log.d("BAG_CHECKOUT", "cartItems size: " + cartItems.size());
+            for (CartItem item : cartItems) {
+                Log.d("BAG_CHECKOUT", "Product: " +
+                        (item.getProduct() != null ? item.getProduct().getName() : "null") +
+                        " Qty: " + item.getQuantity());
+            }
+
             Intent intent = new Intent(getActivity(), com.example.easyshop.CheckoutActivity.class);
-            intent.putExtra("total", discountedTotal);
+            intent.putExtra("cart_items", cartItems);
+            intent.putExtra("total", totalToSend);
             startActivity(intent);
         });
         return root;

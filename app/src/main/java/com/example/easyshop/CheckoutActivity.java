@@ -6,12 +6,20 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import android.widget.TextView;
 import android.widget.Button;
+import android.widget.Toast;
 
 import com.example.easyshop.models.DeliveryMethod;
 import com.example.easyshop.models.PaymentMethod;
 import com.example.easyshop.models.ShippingAddress;
+import com.example.easyshop.models.CartItem;
+import com.example.easyshop.models.Order;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 
+import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.List;
 
 public class CheckoutActivity extends AppCompatActivity {
 
@@ -28,7 +36,8 @@ public class CheckoutActivity extends AppCompatActivity {
     private ArrayList<DeliveryMethod> deliveryMethods = new ArrayList<>();
     private DeliveryMethod selectedDeliveryMethod;
 
-    private int orderTotal = 0; // <-- Store the order total passed from BagFragment
+    private int orderTotal = 0; // Store the order total passed from BagFragment
+    private List<CartItem> cartItems; // Pass this from BagFragment or CartManager
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,10 +53,13 @@ public class CheckoutActivity extends AppCompatActivity {
         tvSummaryTotal = findViewById(R.id.tv_summary_total);
         btnSubmitOrder = findViewById(R.id.btn_submit_order);
 
-        // Get the order total from the intent (sent by BagFragment)
         orderTotal = getIntent().getIntExtra("total", 0);
+        cartItems = (List<CartItem>) getIntent().getSerializableExtra("cart_items");
 
-        // Dummy data for address, payment and delivery
+        // Defensive: Ensure cartItems is never null to prevent upload failures
+        if (cartItems == null) cartItems = new ArrayList<>();
+
+        // Dummy data for address, payment and delivery (replace with real data in production)
         shippingAddress = new ShippingAddress(0, "Jane Doe", "3 Newbridge Court", "Chino Hills, CA 91709, United States");
         paymentMethods.add(new PaymentMethod(1, PaymentMethod.PaymentType.CARD, "Mastercard", "3947", "**** **** **** 3947", R.drawable.ic_mastercard));
         paymentMethods.add(new PaymentMethod(2, PaymentMethod.PaymentType.ONLINE, null, null, "Online Payment", R.drawable.ic_online_payment));
@@ -58,7 +70,6 @@ public class CheckoutActivity extends AppCompatActivity {
         deliveryMethods.add(new DeliveryMethod(3, "DHL", R.drawable.ic_dhl, "2-3 days"));
         selectedDeliveryMethod = deliveryMethods.get(0);
 
-        // Set initial UI
         updateShippingAddressUI();
         updateOrderSummaryUI();
 
@@ -71,16 +82,78 @@ public class CheckoutActivity extends AppCompatActivity {
         });
 
         btnSubmitOrder.setOnClickListener(v -> {
-            Intent intent = new Intent(CheckoutActivity.this, SuccessSplashActivity.class);
-            startActivity(intent);
-            finish(); // Optionally finish checkout so user can't go back
+            if (cartItems == null || cartItems.isEmpty()) {
+                Toast.makeText(this, "Cart is empty. Cannot submit order.", Toast.LENGTH_SHORT).show();
+                return;
+            }
+            // Defensive: Check every CartItem has product and quantity > 0
+            for (CartItem item : cartItems) {
+                if (item.getProduct() == null) {
+                    Toast.makeText(this, "Cart item missing product details.", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+                if (item.getQuantity() <= 0) {
+                    Toast.makeText(this, "Cart item with invalid quantity.", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+            }
+            saveOrderToFirebase();
         });
     }
 
+    private void saveOrderToFirebase() {
+        String userId = FirebaseAuth.getInstance().getCurrentUser() != null ?
+                FirebaseAuth.getInstance().getCurrentUser().getUid() : null;
+        if (userId == null) {
+            Toast.makeText(this, "You must be logged in to place an order.", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        String orderId = "order" + System.currentTimeMillis();
+        long orderDate = System.currentTimeMillis();
+        int deliveryFee = 15;
+        double totalPrice = orderTotal + deliveryFee;
+        String trackingNumber = orderId + "5453455";
+        String status = "Delivered"; // or "Processing"/"Cancelled"
+        String shippingAddr = shippingAddress != null
+                ? shippingAddress.addressLine + ", " + shippingAddress.city
+                : "";
+        String paymentMethodStr = selectedPaymentMethod != null ? selectedPaymentMethod.displayName : "";
+        String deliveryMethodStr = selectedDeliveryMethod != null
+                ? selectedDeliveryMethod.name + ", " + selectedDeliveryMethod.eta + ", " + deliveryFee + "$"
+                : "";
+        String discountStr = "10%, Personal promo code"; // Or retrieve if any
+
+        // Defensive: Make sure cartItems is not null
+        if (cartItems == null) cartItems = new ArrayList<>();
+
+        // Log order before upload (for debugging)
+        // Uncomment if needed: android.util.Log.d("OrderUpload", new com.google.gson.Gson().toJson(
+        //      new Order(orderId, userId, cartItems, totalPrice, orderDate, trackingNumber, status, shippingAddr, paymentMethodStr, deliveryMethodStr, discountStr)
+        // ));
+
+        Order order = new Order(orderId, userId, cartItems, totalPrice, orderDate,
+                trackingNumber, status, shippingAddr, paymentMethodStr, deliveryMethodStr, discountStr);
+
+        DatabaseReference ref = FirebaseDatabase.getInstance().getReference("orders").child(userId).child(orderId);
+        ref.setValue(order)
+                .addOnSuccessListener(aVoid -> {
+                    Intent intent = new Intent(CheckoutActivity.this, SuccessSplashActivity.class);
+                    intent.putExtra("cart_items", (Serializable) cartItems); // cartItems must be Serializable!
+                    intent.putExtra("total", orderTotal);
+                    startActivity(intent);
+                    finish();
+                })
+                .addOnFailureListener(e -> {
+                    Toast.makeText(CheckoutActivity.this, "Failed to place order: " + e.getMessage(), Toast.LENGTH_LONG).show();
+                });
+    }
+
     private void updateShippingAddressUI() {
-        tvAddressName.setText(shippingAddress.name);
-        tvAddressDetail.setText(shippingAddress.addressLine);
-        tvAddressCity.setText(shippingAddress.city);
+        if (shippingAddress != null) {
+            tvAddressName.setText(shippingAddress.name);
+            tvAddressDetail.setText(shippingAddress.addressLine);
+            tvAddressCity.setText(shippingAddress.city);
+        }
     }
 
     private void updateOrderSummaryUI() {
@@ -100,7 +173,6 @@ public class CheckoutActivity extends AppCompatActivity {
                 if (card != null) {
                     paymentMethods.add(card);
                     selectedPaymentMethod = card;
-                    // Update UI accordingly
                 }
             } else if (requestCode == REQ_ADD_ADDRESS) {
                 ShippingAddress address = (ShippingAddress) data.getSerializableExtra("address");

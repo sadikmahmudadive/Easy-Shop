@@ -5,6 +5,7 @@ public class DeliveryMethod {
     public String name;
     public int iconRes;
     public String duration;
+    public String eta;
 
     public DeliveryMethod(int id, String name, int iconRes, String duration) {
         this.id = id;
