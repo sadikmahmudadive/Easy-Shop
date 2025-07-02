@@ -188,10 +188,10 @@ public class BagFragment extends Fragment {
         totalAmount = sum;
         if (appliedPromoCode != null && appliedPromoCode.getDiscountPercent() > 0) {
             discountedTotal = (int) Math.round(totalAmount * (1 - appliedPromoCode.getDiscountPercent() / 100.0));
-            tvTotalAmount.setText(discountedTotal + "$  (" + appliedPromoCode.getDiscountPercent() + "% off)");
+            tvTotalAmount.setText(discountedTotal + "Tk  (" + appliedPromoCode.getDiscountPercent() + "% off)");
         } else {
             discountedTotal = totalAmount;
-            tvTotalAmount.setText(totalAmount + "$");
+            tvTotalAmount.setText(totalAmount + "Tk");
         }
     }
 
@@ -223,7 +223,7 @@ public class BagFragment extends Fragment {
             holder.tvColor.setText("Color: " + p.getColor());
             holder.tvSize.setText("Size: " + p.getSize());
             holder.tvQuantity.setText(String.valueOf(p.getQuantity()));
-            holder.tvPrice.setText(p.getPrice() + "$");
+            holder.tvPrice.setText(p.getPrice() + "Tk");
 
             Glide.with(holder.imgProduct.getContext())
                     .load(p.getImageUrl())

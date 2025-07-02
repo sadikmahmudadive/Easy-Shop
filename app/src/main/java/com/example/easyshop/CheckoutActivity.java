@@ -36,8 +36,8 @@ public class CheckoutActivity extends AppCompatActivity {
     private ArrayList<DeliveryMethod> deliveryMethods = new ArrayList<>();
     private DeliveryMethod selectedDeliveryMethod;
 
-    private int orderTotal = 0; // Store the order total passed from BagFragment
-    private List<CartItem> cartItems; // Pass this from BagFragment or CartManager
+    private int orderTotal = 0;
+    private List<CartItem> cartItems;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -55,11 +55,9 @@ public class CheckoutActivity extends AppCompatActivity {
 
         orderTotal = getIntent().getIntExtra("total", 0);
         cartItems = (List<CartItem>) getIntent().getSerializableExtra("cart_items");
-
-        // Defensive: Ensure cartItems is never null to prevent upload failures
         if (cartItems == null) cartItems = new ArrayList<>();
 
-        // Dummy data for address, payment and delivery (replace with real data in production)
+        // Dummy data for address, payment and delivery
         shippingAddress = new ShippingAddress(0, "Jane Doe", "3 Newbridge Court", "Chino Hills, CA 91709, United States");
         paymentMethods.add(new PaymentMethod(1, PaymentMethod.PaymentType.CARD, "Mastercard", "3947", "**** **** **** 3947", R.drawable.ic_mastercard));
         paymentMethods.add(new PaymentMethod(2, PaymentMethod.PaymentType.ONLINE, null, null, "Online Payment", R.drawable.ic_online_payment));
@@ -86,7 +84,6 @@ public class CheckoutActivity extends AppCompatActivity {
                 Toast.makeText(this, "Cart is empty. Cannot submit order.", Toast.LENGTH_SHORT).show();
                 return;
             }
-            // Defensive: Check every CartItem has product and quantity > 0
             for (CartItem item : cartItems) {
                 if (item.getProduct() == null) {
                     Toast.makeText(this, "Cart item missing product details.", Toast.LENGTH_SHORT).show();
@@ -110,35 +107,33 @@ public class CheckoutActivity extends AppCompatActivity {
         }
         String orderId = "order" + System.currentTimeMillis();
         long orderDate = System.currentTimeMillis();
-        int deliveryFee = 15;
-        double totalPrice = orderTotal + deliveryFee;
+        double shippingFee = 15.0;
+        double discountValue = 10.0; // example
+        double totalPrice = orderTotal + shippingFee - discountValue;
         String trackingNumber = orderId + "5453455";
-        String status = "Delivered"; // or "Processing"/"Cancelled"
+        String status = "Processing";
         String shippingAddr = shippingAddress != null
                 ? shippingAddress.addressLine + ", " + shippingAddress.city
                 : "";
         String paymentMethodStr = selectedPaymentMethod != null ? selectedPaymentMethod.displayName : "";
         String deliveryMethodStr = selectedDeliveryMethod != null
-                ? selectedDeliveryMethod.name + ", " + selectedDeliveryMethod.eta + ", " + deliveryFee + "$"
+                ? selectedDeliveryMethod.name + ", " + selectedDeliveryMethod.eta + ", " + shippingFee + "Tk"
                 : "";
-        String discountStr = "10%, Personal promo code"; // Or retrieve if any
-
-        // Defensive: Make sure cartItems is not null
-        if (cartItems == null) cartItems = new ArrayList<>();
-
-        // Log order before upload (for debugging)
-        // Uncomment if needed: android.util.Log.d("OrderUpload", new com.google.gson.Gson().toJson(
-        //      new Order(orderId, userId, cartItems, totalPrice, orderDate, trackingNumber, status, shippingAddr, paymentMethodStr, deliveryMethodStr, discountStr)
-        // ));
+        String discountStr = "10%, Personal promo code";
+        String customerName = shippingAddress != null ? shippingAddress.name : "";
+        String customerEmail = ""; // Get from user profile if available
+        String customerPhone = ""; // Get from user profile/address if available
+        String notes = "";
 
         Order order = new Order(orderId, userId, cartItems, totalPrice, orderDate,
-                trackingNumber, status, shippingAddr, paymentMethodStr, deliveryMethodStr, discountStr);
+                trackingNumber, status, shippingAddr, paymentMethodStr, deliveryMethodStr, discountStr,
+                customerName, customerEmail, customerPhone, shippingFee, discountValue, notes);
 
         DatabaseReference ref = FirebaseDatabase.getInstance().getReference("orders").child(userId).child(orderId);
         ref.setValue(order)
                 .addOnSuccessListener(aVoid -> {
                     Intent intent = new Intent(CheckoutActivity.this, SuccessSplashActivity.class);
-                    intent.putExtra("cart_items", (Serializable) cartItems); // cartItems must be Serializable!
+                    intent.putExtra("cart_items", (Serializable) cartItems);
                     intent.putExtra("total", orderTotal);
                     startActivity(intent);
                     finish();
@@ -157,11 +152,12 @@ public class CheckoutActivity extends AppCompatActivity {
     }
 
     private void updateOrderSummaryUI() {
-        int deliveryFee = 15;
-        int summary = orderTotal + deliveryFee;
-        tvOrderTotal.setText(orderTotal + "$");
-        tvDeliveryFee.setText(deliveryFee + "$");
-        tvSummaryTotal.setText(summary + "$");
+        double shippingFee = 15.0;
+        double discountValue = 10.0;
+        double summary = orderTotal + shippingFee - discountValue;
+        tvOrderTotal.setText(orderTotal + "Tk");
+        tvDeliveryFee.setText(shippingFee + "Tk");
+        tvSummaryTotal.setText(summary + "Tk");
     }
 
     @Override

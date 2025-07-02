@@ -56,7 +56,7 @@ public class OrderHistoryActivity extends AppCompatActivity {
         btnProcessing = findViewById(R.id.btn_processing);
         btnCancelled = findViewById(R.id.btn_cancelled);
 
-        btnDelivered.setOnClickListener(v -> setOrderFilter("Delivered"));
+        btnDelivered.setOnClickListener(v -> setOrderFilter("Completed"));
         btnProcessing.setOnClickListener(v -> setOrderFilter("Processing"));
         btnCancelled.setOnClickListener(v -> setOrderFilter("Cancelled"));
 
@@ -90,7 +90,7 @@ public class OrderHistoryActivity extends AppCompatActivity {
                     }
                 }
                 Collections.reverse(allOrders);
-                setOrderFilter(getSelectedStatusTab()); // Default filter
+                setOrderFilter(getSelectedStatusTab());
             }
 
             @Override
@@ -120,16 +120,18 @@ public class OrderHistoryActivity extends AppCompatActivity {
     }
 
     private void updateTabStyles(String selectedStatus) {
-        btnDelivered.setBackgroundResource(selectedStatus.equals("Delivered") ? R.drawable.bg_tab_selected : R.drawable.bg_tab_unselected);
-        btnDelivered.setTextColor(getResources().getColor(selectedStatus.equals("Delivered") ? android.R.color.white : android.R.color.black));
-        btnProcessing.setBackgroundResource(selectedStatus.equals("Processing") ? R.drawable.bg_tab_selected : R.drawable.bg_tab_unselected);
-        btnProcessing.setTextColor(getResources().getColor(selectedStatus.equals("Processing") ? android.R.color.white : android.R.color.black));
-        btnCancelled.setBackgroundResource(selectedStatus.equals("Cancelled") ? R.drawable.bg_tab_selected : R.drawable.bg_tab_unselected);
-        btnCancelled.setTextColor(getResources().getColor(selectedStatus.equals("Cancelled") ? android.R.color.white : android.R.color.black));
+        // Treat "Completed" as "Delivered" for tab highlighting
+        boolean deliveredSelected = selectedStatus.equalsIgnoreCase("Completed");
+        btnDelivered.setBackgroundResource(deliveredSelected ? R.drawable.bg_tab_selected : R.drawable.bg_tab_unselected);
+        btnDelivered.setTextColor(getResources().getColor(deliveredSelected ? android.R.color.white : android.R.color.black));
+        btnProcessing.setBackgroundResource(selectedStatus.equalsIgnoreCase("Processing") ? R.drawable.bg_tab_selected : R.drawable.bg_tab_unselected);
+        btnProcessing.setTextColor(getResources().getColor(selectedStatus.equalsIgnoreCase("Processing") ? android.R.color.white : android.R.color.black));
+        btnCancelled.setBackgroundResource(selectedStatus.equalsIgnoreCase("Cancelled") ? R.drawable.bg_tab_selected : R.drawable.bg_tab_unselected);
+        btnCancelled.setTextColor(getResources().getColor(selectedStatus.equalsIgnoreCase("Cancelled") ? android.R.color.white : android.R.color.black));
     }
 
     private String getSelectedStatusTab() {
-        // Default to Delivered on launch
-        return "Delivered";
+        // Default to "Completed" for Delivered tab on launch
+        return "Completed";
     }
 }

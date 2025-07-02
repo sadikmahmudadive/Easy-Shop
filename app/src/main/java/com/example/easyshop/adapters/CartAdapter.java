@@ -51,8 +51,8 @@ public class CartAdapter extends RecyclerView.Adapter<CartAdapter.CartViewHolder
         holder.tvQuantity.setText(String.valueOf(item.getQuantity()));
 
         try {
-            double price = Double.parseDouble(item.getProduct().getPrice().replace("$", ""));
-            holder.tvProductPrice.setText(String.format(Locale.US, "%.2f$", price));
+            double price = Double.parseDouble(item.getProduct().getPrice().replace("Tk", ""));
+            holder.tvProductPrice.setText(String.format(Locale.US, "%.2f Tk", price));
         } catch (NumberFormatException e) {
             holder.tvProductPrice.setText("N/A");
         }

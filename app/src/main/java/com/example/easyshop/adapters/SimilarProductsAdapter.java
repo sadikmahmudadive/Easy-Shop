@@ -42,7 +42,7 @@ public class SimilarProductsAdapter extends RecyclerView.Adapter<SimilarProducts
         Product product = productList.get(position);
         holder.title.setText(product.getName());
         holder.brand.setText(product.getBrand());
-        holder.price.setText("$" + product.getPrice());
+        holder.price.setText(product.getPrice() + "Tk");
         if (product.getImageUrl() != null && !product.getImageUrl().isEmpty()) {
             Glide.with(holder.image.getContext())
                     .load(product.getImageUrl())

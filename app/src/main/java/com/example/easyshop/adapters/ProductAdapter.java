@@ -96,9 +96,9 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
         holder.tvTitle.setText(p.getTitle());
 
         // Price
-        holder.tvOldPrice.setText(String.format("%s$", p.getOldPrice()));
+        holder.tvOldPrice.setText(String.format("%sTk", p.getOldPrice()));
         holder.tvOldPrice.setPaintFlags(holder.tvOldPrice.getPaintFlags() | android.graphics.Paint.STRIKE_THRU_TEXT_FLAG);
-        holder.tvNewPrice.setText(String.format("%s$", p.getPrice()));
+        holder.tvNewPrice.setText(String.format("%sTk", p.getPrice()));
 
         // Product click (for details)
         holder.itemView.setOnClickListener(v -> {

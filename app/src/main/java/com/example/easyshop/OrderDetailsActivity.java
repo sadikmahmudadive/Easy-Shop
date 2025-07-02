@@ -36,7 +36,9 @@ public class OrderDetailsActivity extends AppCompatActivity {
         tvOrderNum.setText("Order No: " + order.getOrderId());
         tvOrderDate.setText(new java.text.SimpleDateFormat("dd-MM-yyyy").format(new java.util.Date(order.getOrderDate())));
         tvTrackingNumber.setText("Tracking number: " + (order.getTrackingNumber() != null ? order.getTrackingNumber() : ""));
-        tvStatus.setText(order.getStatus() != null ? order.getStatus() : "Delivered");
+        // Show "Delivered" if the status is "Completed"
+        String status = (order.getStatus() != null && order.getStatus().equalsIgnoreCase("Completed")) ? "Delivered" : (order.getStatus() != null ? order.getStatus() : "Delivered");
+        tvStatus.setText(status);
         tvItemsCount.setText(order.getItems() != null ? order.getItems().size() + " items" : "0 items");
         rvOrderItems.setLayoutManager(new LinearLayoutManager(this));
         rvOrderItems.setAdapter(new OrderDetailAdapter(this, order.getItems()));
@@ -45,6 +47,6 @@ public class OrderDetailsActivity extends AppCompatActivity {
         tvPaymentMethod.setText("Payment method: " + (order.getPaymentMethod() != null ? order.getPaymentMethod() : ""));
         tvDeliveryMethod.setText("Delivery method: " + (order.getDeliveryMethod() != null ? order.getDeliveryMethod() : ""));
         tvDiscount.setText("Discount: " + (order.getDiscountText() != null ? order.getDiscountText() : ""));
-        tvTotalAmount.setText("Total Amount: " + String.format("%.0f$", order.getTotalPrice()));
+        tvTotalAmount.setText("Total Amount: " + String.format("%.0f Tk", order.getTotalPrice()));
     }
 }

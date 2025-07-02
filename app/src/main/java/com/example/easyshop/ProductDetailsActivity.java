@@ -196,8 +196,8 @@ public class ProductDetailsActivity extends AppCompatActivity implements WriteRe
         productTitle.setText(nonNull(product.getName()));
         productBrand.setText(nonNull(product.getBrand()));
         productCategory.setText(nonNull(product.getCategory()));
-        productPrice.setText("$" + nonNull(product.getPrice()));
-        productOldPrice.setText(product.getOldPrice() != null ? "$" + product.getOldPrice() : "");
+        productPrice.setText(nonNull(product.getPrice()) + "Tk");
+        productOldPrice.setText(product.getOldPrice() != null ? "Tk" + product.getOldPrice() : "");
         productRating.setText(
                 product.getAvgRating() != null
                         ? String.format(Locale.US, "%.1f", product.getAvgRating())

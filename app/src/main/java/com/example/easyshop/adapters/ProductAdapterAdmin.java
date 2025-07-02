@@ -66,13 +66,13 @@ public class ProductAdapterAdmin extends RecyclerView.Adapter<ProductAdapterAdmi
         // Show old price with strikethrough if not empty
         if (p.getOldPrice() != null && !p.getOldPrice().isEmpty()) {
             holder.tvOldPrice.setVisibility(View.VISIBLE);
-            holder.tvOldPrice.setText(String.format("%s$", p.getOldPrice()));
+            holder.tvOldPrice.setText(String.format("%sTk", p.getOldPrice()));
             holder.tvOldPrice.setPaintFlags(holder.tvOldPrice.getPaintFlags() | android.graphics.Paint.STRIKE_THRU_TEXT_FLAG);
         } else {
             holder.tvOldPrice.setVisibility(View.GONE);
         }
 
-        holder.tvNewPrice.setText(String.format("%s$", p.getPrice() != null && !p.getPrice().isEmpty() ? p.getPrice() : "0"));
+        holder.tvNewPrice.setText(String.format("%sTk", p.getPrice() != null && !p.getPrice().isEmpty() ? p.getPrice() : "0"));
         holder.tvReviews.setText(String.format("(%d)", p.getReviewCount() != null ? p.getReviewCount() : 0));
 
         Glide.with(holder.itemView.getContext())

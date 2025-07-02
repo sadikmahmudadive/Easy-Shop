@@ -45,9 +45,9 @@ public class OrderDetailAdapter extends RecyclerView.Adapter<OrderDetailAdapter.
         holder.tvQuantity.setText(String.format(Locale.US, "Quantity: %d", item.getQuantity()));
 
         try {
-            double price = Double.parseDouble(item.getProduct().getPrice().replace("$", ""));
+            double price = Double.parseDouble(item.getProduct().getPrice().replace("Tk", ""));
             double lineItemTotal = price * item.getQuantity();
-            holder.tvLineItemPrice.setText(String.format(Locale.US, "%.2f$", lineItemTotal));
+            holder.tvLineItemPrice.setText(String.format(Locale.US, "%.2fTk", lineItemTotal));
         } catch (NumberFormatException e) {
             holder.tvLineItemPrice.setText("N/A");
         }

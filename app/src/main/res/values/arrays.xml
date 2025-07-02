@@ -11,4 +11,11 @@
         <item>Red</item>
         <item>White</item>
     </string-array>
+    <string-array name="order_status_filter">
+        <item>All Statuses</item>
+        <item>Pending</item>
+        <item>Shipped</item>
+        <item>Delivered</item>
+        <item>Cancelled</item>
+    </string-array>
 </resources>

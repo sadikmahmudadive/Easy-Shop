@@ -47,7 +47,7 @@ public class OrderHistoryAdapter extends RecyclerView.Adapter<OrderHistoryAdapte
         holder.tvOrderDate.setText(sdf.format(new Date(order.getOrderDate())));
         holder.tvTrackingNumber.setText("Tracking number: " + (order.getTrackingNumber() != null ? order.getTrackingNumber() : ""));
         holder.tvQuantity.setText("Quantity: " + (order.getItems() != null ? order.getItems().size() : 0));
-        holder.tvTotalAmount.setText("Total Amount: " + String.format(Locale.US, "%.0f$", order.getTotalPrice()));
+        holder.tvTotalAmount.setText("Total Amount: " + String.format(Locale.US, "%.0fTk", order.getTotalPrice()));
         holder.tvStatus.setText(order.getStatus() != null ? order.getStatus() : "Delivered");
 
         holder.btnDetails.setOnClickListener(v -> {

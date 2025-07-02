@@ -46,7 +46,7 @@ public class FavoriteAdapter extends RecyclerView.Adapter<FavoriteAdapter.Favour
         holder.title.setText(p.getName());
         holder.color.setText("Color: " + (p.getCategory() != null ? p.getCategory() : "-"));
         holder.size.setText("Size: " + (p.getSelectedSize() != null ? p.getSelectedSize() : "-"));
-        holder.price.setText(p.getPrice() + "$");
+        holder.price.setText(p.getPrice() + "Tk");
 
         Glide.with(holder.image.getContext())
                 .load(p.getImageUrl())
